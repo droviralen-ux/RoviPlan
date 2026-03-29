@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RoviPlanner</title>
+  <style>
+    :root {
+      --bg: #f3f6f9;
+      --panel: #ffffff;
+      --line: #e2e8f0;
+      --text: #1e293b;
+      --muted: #64748b;
+      --navy: #0f172a;
+      --navy2: #1e293b;
+      --blue: #3b82f6;
+      --blue-hover: #2563eb;
+      --green: #10b981;
+      --amber: #f59e0b;
+      --red: #ef4444;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+      --hourW: 70px;
+      --headerH: 70px;
+      --slotH: 60px;
+      --sidebarW: 320px;
+      --radius: 16px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0; padding: 0;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+    }
+
+    body { padding: 20px; }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+
+    .app { max-width: 1600px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+
+    .topbar {
+      background: #ffffff;
+      color: var(--navy);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--line);
+    }
+    .topbar-row { display: grid; grid-template-columns: 1fr auto; gap: 20px; align-items: center; }
+    .title { margin: 0 0 4px 0; font-size: 24px; font-weight: 700; letter-spacing: -0.5px; }
+    .subtitle { margin: 0; color: var(--muted); font-size: 14px; }
+    .company-input {
+      margin-top: 12px; width: min(400px, 100%);
+      border: 1px solid var(--line); background: var(--bg); color: var(--text);
+      border-radius: 8px; padding: 10px 14px; outline: none; transition: border 0.2s;
+    }
+    .company-input:focus { border-color: var(--blue); }
+
+    .actions, .view-switch, .field-inline, .weekday-group, .row-inline, .toolbar-right { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .btn {
+      border: none; border-radius: 8px; padding: 10px 16px; font-weight: 600; font-size: 14px;
+      transition: all 0.2s ease; display: inline-flex; align-items: center; justify-content: center;
+    }
+    .btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+    .btn:active { transform: translateY(0); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    .btn-white { background: #fff; color: var(--navy); border: 1px solid var(--line); }
+    .btn-white:hover { background: var(--bg); }
+    .btn-ghost { background: transparent; color: var(--muted); }
+    .btn-ghost:hover { background: var(--bg); color: var(--text); }
+    .btn-blue { background: var(--bg); color: var(--blue-hover); border: 1px solid transparent; }
+    .btn-blue:hover { background: #e0e7ff; }
+    .btn-blue.active { background: var(--blue); color: #fff; box-shadow: var(--shadow-md); }
+    .btn-danger { background: #fef2f2; color: var(--red); }
+    .btn-danger:hover { background: #fee2e2; }
+
+    .toolbar-secondary { display: flex; justify-content: space-between; margin-bottom: 4px; align-items: center; }
+    .shell { display: grid; grid-template-columns: var(--sidebarW) 1fr; gap: 24px; align-items: start; }
+
+    .sidebar, .calendar-shell {
+      background: var(--panel); border: 1px solid var(--line);
+      border-radius: var(--radius); box-shadow: var(--shadow-sm); overflow: hidden;
+    }
+    .sidebar-head, .calendar-toolbar {
+      padding: 16px 20px; border-bottom: 1px solid var(--line); background: #fafafa;
+    }
+    .sidebar-head h2 { margin: 0; font-size: 16px; font-weight: 700; color: var(--navy); }
+    .sidebar-body { padding: 20px; display: flex; flex-direction: column; gap: 20px; }
+
+    .card { border: 1px solid var(--line); border-radius: 12px; background: #ffffff; padding: 16px; box-shadow: var(--shadow-sm); }
+    .card h3 { margin: 0 0 12px; font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .field label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
+    input[type="text"], input[type="date"], input[type="time"], input[type="number"], select, textarea {
+      width: 100%; border: 1px solid var(--line); border-radius: 8px; padding: 10px;
+      background: var(--bg); color: var(--text); outline: none; transition: 0.2s; font-size: 14px;
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--blue); background: #fff; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
+    textarea { resize: vertical; min-height: 80px; }
+
+    .pill { display: inline-flex; align-items: center; gap: 6px; border-radius: 6px; padding: 6px 10px; font-size: 12px; font-weight: 500; background: var(--bg); color: var(--text); border: 1px solid var(--line); }
+    .project-row {
+      display: grid; grid-template-columns: 12px 1fr auto; gap: 12px; align-items: center;
+      border: 1px solid var(--line); border-radius: 8px; padding: 12px; background: #fff; cursor: pointer; transition: 0.2s;
+    }
+    .project-row:hover { border-color: var(--blue); box-shadow: var(--shadow-sm); }
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+
+    .calendar { position: relative; overflow: auto; background: #fff; min-height: 700px; }
+    .time-grid { display: grid; min-width: 1200px; }
+    .time-grid.week { grid-template-columns: var(--hourW) repeat(7, minmax(160px, 1fr)); }
+    .time-grid.day { grid-template-columns: var(--hourW) minmax(500px, 1fr); min-width: 100%; }
+
+    .day-head {
+      height: var(--headerH); padding: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center;
+      position: sticky; top: 0; z-index: 4; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(4px); border-bottom: 1px solid var(--line);
+    }
+    .day-name { font-weight: 600; font-size: 14px; color: var(--text); }
+    .day-date { font-size: 12px; color: var(--muted); margin-top: 4px; }
+    .time-cell { border-right: 1px solid var(--line); border-bottom: 1px dashed var(--line); height: var(--slotH); padding: 8px; font-size: 12px; color: var(--muted); text-align: right; }
+    .grid-cell { border-right: 1px solid var(--line); border-bottom: 1px dashed var(--line); height: var(--slotH); position: relative; }
+    .grid-cell.drag-over,.month-day.drag-over{background:#edf5ff !important;outline:2px dashed #93c5fd;outline-offset:-2px}
+
+    .calendar-event {
+      position: absolute; border-radius: 8px; padding: 8px; color: #fff;
+      box-shadow: var(--shadow-sm); overflow: hidden; pointer-events: auto; cursor: grab;
+      border: 1px solid rgba(0,0,0,0.1); transition: transform 0.1s;
+    }
+    .calendar-event:hover { transform: scale(1.01); z-index: 10 !important; box-shadow: var(--shadow-md); }
+    .event-title { font-size: 13px; font-weight: 600; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .event-sub { font-size: 11px; opacity: 0.9; }
+
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 50; padding: 20px; }
+    .modal-backdrop.show { display: flex; }
+    .modal { width: min(1000px, 100%); max-height: 90vh; overflow: auto; background: #fff; border-radius: var(--radius); box-shadow: var(--shadow-lg); }
+    .modal-head { padding: 20px 24px; border-bottom: 1px solid var(--line); position: sticky; top: 0; background: #fff; z-index: 10; display: flex; justify-content: space-between; align-items: center; }
+    .modal-body { padding: 24px; }
+    .form-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+    .full { grid-column: 1 / -1; }
+    .span2 { grid-column: span 2; }
+
+    .context-menu { position: fixed; background: #fff; border: 1px solid var(--line); border-radius: 8px; box-shadow: var(--shadow-md); padding: 6px; z-index: 100; min-width: 200px; display: none; }
+    .context-menu.show { display: block; }
+    .context-item { padding: 8px 12px; border-radius: 6px; font-size: 13px; cursor: pointer; color: var(--text); }
+    .context-item:hover { background: var(--bg); color: var(--blue); }
+    
+    .hidden { display: none !important; }
+    .selection-preview{position:absolute;background:rgba(37,99,235,.18);border:2px solid rgba(37,99,235,.35);pointer-events:none;border-radius:12px;z-index:8}
+    .calendar-events{position:absolute;top:var(--headerH);left:var(--hourW);right:0;bottom:0;pointer-events:none}
+    .day-layer{position:absolute;top:0;bottom:0;pointer-events:none}
+    .resize-handle{position:absolute;left:0;right:0;bottom:0;height:12px;cursor:ns-resize;background:linear-gradient(180deg,transparent,rgba(255,255,255,.28));pointer-events:auto}
+    .now-line{position:absolute;left:0;right:0;height:2px;background:#ef4444;z-index:9;pointer-events:none}
+    .now-line::before{content:'';position:absolute;left:-5px;top:-4px;width:10px;height:10px;background:#ef4444;border-radius:999px}
+    .month-grid{display:grid;grid-template-columns:repeat(7,minmax(170px,1fr));min-width:1220px}
+    .month-head{padding:12px;font-weight:800;color:#17355e;z-index:2}
+    .month-day{min-height:170px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:10px;background:#fff}
+    .month-day.other-month{background:#fbfdff;color:#94a3b8}
+    .month-day-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+    .month-day-number{font-weight:800;color:#17355e}
+    .month-list{display:flex;flex-direction:column;gap:6px}
+    .month-chip{border-radius:10px;padding:6px 8px;color:#fff;font-size:11px;font-weight:700;cursor:grab;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+    .legend{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:12px 16px 16px;border-top:1px solid var(--line);background:#fcfeff}
+    .chip{display:inline-flex;align-items:center;gap:8px;background:#f4f8fd;border:1px solid var(--line);padding:8px 10px;border-radius:999px;font-size:12px;color:#1c365b}
+    .chip-dot{width:12px;height:12px;border-radius:999px;border:1px solid rgba(0,0,0,.08)}
+    .modal-title{font-size:20px;font-weight:800;color:#18385f;margin:0}
+    .weekday-item{display:inline-flex;align-items:center;gap:6px;padding:8px 10px;border:1px solid var(--line);border-radius:999px;background:#fff;font-size:12px}
+    .section-title{margin:18px 0 12px;font-size:16px;font-weight:800;color:#17355e}
+    .tasks-list{display:flex;flex-direction:column;gap:12px}
+    .task-card{border:1px solid var(--line);border-radius:18px;background:#fbfdff;padding:14px}
+    .task-card.completed{border-color:#86efac;background:#f0fdf4}
+    .task-header{display:grid;grid-template-columns:1.1fr repeat(5,minmax(0,1fr));gap:10px;align-items:end}
+    .task-header-tight{display:grid;grid-template-columns:1.2fr .9fr .9fr .9fr auto;gap:10px;align-items:end;margin-top:10px}
+    .task-recurrence-grid{display:grid;grid-template-columns:1fr 130px 150px 170px 180px;gap:10px;margin-top:12px;align-items:end}
+    .scope-grid{display:grid;grid-template-columns:220px 1fr;gap:10px;align-items:end;margin-top:12px}
+    .status-badge{display:inline-block;font-size:12px;font-weight:800;padding:6px 10px;border-radius:999px;margin-top:8px}
+    .st-pendiente{background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe}
+    .st-completada{background:#ecfdf5;color:#15803d;border:1px solid #86efac}
+    .st-aplazada{background:#fffbeb;color:#b45309;border:1px solid #fde68a}
+    .priority-badge{display:inline-flex;border-radius:999px;padding:4px 8px;font-size:11px;font-weight:800}
+    .p-alta{background:#fee2e2;color:#b91c1c}
+    .p-media{background:#eff6ff;color:#1d4ed8}
+    .p-baja{background:#f3f4f6;color:#475569}
+    .task-deferred{margin-top:10px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;padding:10px;border-radius:14px;background:#fff7e6;border:1px solid #fde7a9}
+    .note-bar{margin-top:12px;background:#eff6ff;border:1px solid #bfdbfe;color:#1e3a5f;padding:10px 12px;border-radius:12px;font-size:13px}
+    .empty-state{padding:18px;border:1px dashed #c9d8eb;border-radius:16px;background:#f9fbff;color:#5c708b;font-size:14px}
+    
+    @media (max-width: 1024px) {
+      .shell { grid-template-columns: 1fr; }
+      .form-grid { grid-template-columns: 1fr 1fr; }
+      .task-header,.task-header-tight,.task-recurrence-grid,.scope-grid{grid-template-columns:1fr 1fr}
+    }
+    @media (max-width: 600px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .topbar-row { grid-template-columns: 1fr; }
+      .task-header,.task-header-tight,.task-recurrence-grid,.scope-grid,.task-deferred{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="topbar-row">
+        <div>
+          <h1 class="title">RoviPlanner</h1>
+          <p class="subtitle">El Planificador carcaixentí</p>
+          <input id="companyName" class="company-input" type="text" placeholder="Nombre de la empresa" />
+        </div>
+        <div class="actions">
+          <button class="btn btn-white" id="todayBtn">Hoy</button>
+          <button class="btn btn-ghost" id="prevBtn">← Anterior</button>
+          <button class="btn btn-ghost" id="nextBtn">Siguiente →</button>
+          <button class="btn btn-white" id="addProjectBtn">+ Nuevo proyecto</button>
+          <button class="btn btn-ghost" id="undoBtn">Deshacer</button>
+          <button class="btn btn-ghost" id="redoBtn">Rehacer</button>
+          <button class="btn btn-ghost" id="exportBtn">Exportar JSON</button>
+          <button class="btn btn-ghost" id="importBtn">Importar JSON</button>
+          <input id="importFileInput" type="file" accept="application/json" class="hidden" />
+          <button class="btn btn-ghost" id="resetBtn">Restablecer</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="toolbar-secondary">
+      <div class="view-switch">
+        <button class="btn btn-blue active" data-view="month">Mes</button>
+        <button class="btn btn-blue" data-view="week">Semana</button>
+        <button class="btn btn-blue" data-view="day">Día</button>
+        <button class="btn btn-blue" data-view="list">Lista</button>
+      </div>
+      <div class="toolbar-right muted">
+        Atajos: N proyecto · T tarea · Ctrl/Cmd+Z deshacer · Supr eliminar
+      </div>
+    </div>
+
+    <div class="shell">
+      <aside class="sidebar">
+        <div class="sidebar-head"><h2>Panel profesional</h2></div>
+        <div class="sidebar-body">
+          <div class="card">
+            <h3>Buscar y filtrar</h3>
+            <div class="field">
+              <label>Buscar</label>
+              <input id="searchInput" type="text" placeholder="Proyecto, tarea, nota, tag..." />
+            </div>
+            <div class="field" style="margin-top:10px">
+              <label>Proyecto</label>
+              <select id="projectFilterSelect"><option value="all">Todos</option></select>
+            </div>
+            <div class="field" style="margin-top:10px">
+              <label>Estado</label>
+              <select id="statusFilterSelect">
+                <option value="all">Todos</option>
+                <option value="Pendiente">Pendiente</option>
+                <option value="Completada">Completada</option>
+                <option value="Aplazada">Aplazada</option>
+              </select>
+            </div>
+            <div class="field" style="margin-top:10px">
+              <label>Prioridad</label>
+              <select id="priorityFilterSelect">
+                <option value="all">Todas</option>
+                <option value="Alta">Alta</option>
+                <option value="Media">Media</option>
+                <option value="Baja">Baja</option>
+              </select>
+            </div>
+            <div class="field" style="margin-top:10px">
+              <label>Mostrar</label>
+              <select id="archiveFilterSelect">
+                <option value="active">Activos</option>
+                <option value="all">Activos y archivados</option>
+                <option value="archived">Solo archivados</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>Resumen</h3>
+            <div id="summaryBox" class="list"></div>
+          </div>
+
+          <div class="card">
+            <h3>Carga semanal</h3>
+            <div id="workloadBox" class="list"></div>
+          </div>
+
+          <div class="card">
+            <h3>Proyectos</h3>
+            <div id="projectQuickList" class="list"></div>
+          </div>
+        </div>
+      </aside>
+
+      <section class="calendar-shell">
+        <div class="calendar-toolbar">
+          <div class="range-title" id="rangeTitle"></div>
+          <div class="muted">Arrastra para mover, arrastra el borde inferior para redimensionar, y arrastra sobre huecos para crear rápido.</div>
+        </div>
+        <div class="calendar" id="calendar"></div>
+        <div class="legend" id="legend"></div>
+      </section>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="projectModalBackdrop">
+    <div class="modal">
+      <div class="modal-head">
+        <h2 class="modal-title" id="modalTitle">Proyecto</h2>
+        <div class="field-inline">
+          <button class="btn btn-blue btn-small" id="duplicateProjectBtn">Duplicar</button>
+          <button class="btn btn-blue btn-small" id="archiveProjectBtn">Archivar</button>
+          <button class="btn btn-blue btn-small" id="addTaskBtn">+ Añadir tarea</button>
+          <button class="btn btn-danger btn-small" id="deleteProjectBtn">Eliminar proyecto</button>
+          <button class="btn btn-white btn-small" id="closeModalBtn">Cerrar</button>
+        </div>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="field span2"><label>Nombre del proyecto</label><input type="text" id="projectNameInput" /></div>
+          <div class="field"><label>Cliente</label><input type="text" id="projectClientInput" placeholder="Cliente / cuenta" /></div>
+          <div class="field"><label>Color</label><input type="color" id="projectColorInput" /></div>
+
+          <div class="field"><label>Fecha base</label><input type="date" id="projectDateInput" /></div>
+          <div class="field"><label>Hora inicio</label><input type="time" id="projectStartInput" /></div>
+          <div class="field"><label>Hora fin</label><input type="time" id="projectEndInput" /></div>
+          <div class="field"><label>Estado del proyecto</label><select id="projectStatusInput"><option>Activo</option><option>En espera</option><option>Completado</option></select></div>
+
+          <div class="field"><label>Prioridad</label><select id="projectPriorityInput"><option>Alta</option><option selected>Media</option><option>Baja</option></select></div>
+          <div class="field"><label>Facturable</label><select id="projectBillableInput"><option value="true">Sí</option><option value="false">No</option></select></div>
+          <div class="field"><label>Horas previstas</label><input type="number" min="0" step="0.25" id="projectPlannedHoursInput" /></div>
+          <div class="field"><label>Horas reales</label><input type="number" min="0" step="0.25" id="projectActualHoursInput" /></div>
+
+          <div class="field"><label>Frecuencia</label><select id="projectRecurrenceTypeInput"><option value="none">No repetir</option><option value="daily">Diaria</option><option value="weekly">Semanal</option><option value="monthly">Mensual</option><option value="interval">Cada X...</option><option value="weekly_days">Días concretos</option></select></div>
+          <div class="field"><label>Intervalo</label><input type="number" min="1" id="projectIntervalInput" value="1" /></div>
+          <div class="field"><label>Unidad intervalo</label><select id="projectIntervalUnitInput"><option value="days">Días</option><option value="weeks">Semanas</option><option value="months">Meses</option></select></div>
+          <div class="field"><label>Fecha tope recurrencia</label><input type="date" id="projectRecurrenceEndDateInput" /></div>
+
+          <div class="field span2"><label>Tags</label><input type="text" id="projectTagsInput" placeholder="ej: fiscal, urgente, cliente-a" /></div>
+          <div class="field span2"><label>Plantilla</label><select id="projectTemplateSelect"><option value="">Sin plantilla</option><option value="legal">Legal</option><option value="asesoria">Asesoría</option><option value="consultoria">Consultoría</option></select></div>
+
+          <div class="field full"><label>Días concretos de recurrencia</label><div class="weekday-group" id="projectWeekdayGroup"></div></div>
+          <div class="field full"><label>Observaciones del proyecto</label><textarea id="projectNotesInput" placeholder="Descripción, notas, enlaces, contexto..."></textarea></div>
+        </div>
+
+        <h3 class="section-title">Tareas del proyecto</h3>
+        <div id="tasksList" class="tasks-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="context-menu" id="contextMenu"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script>
+    (() => {
+      const STORAGE_KEY = 'planner_pro_v2_fixed';
+      const HISTORY_LIMIT = 80;
+      const HOURS = Array.from({ length: 13 }, (_, i) => i + 8);
+      const SLOT_HEIGHT = 60;
+      const DAY_START_MIN = 8 * 60;
+      const DAY_END_MIN = 20 * 60;
+      const MONTH_NAMES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+      const DAY_NAMES = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+      const WEEKDAY_KEYS = ['mon','tue','wed','thu','fri','sat','sun'];
+
+      // --- CONFIGURACIÓN SUPABASE ---
+      // Reemplaza esto con los datos de tu proyecto
+      const supabaseUrl = 'https://kublywmnmeripbmfdqxc.supabase.co';
+      const supabaseKey = 'sb_publishable_13-EJ5fUP_7UHRuSumgF1g_TKb-c5kY';
+      const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+      // ------------------------------------
+
+      const els = {
+        companyName: document.getElementById('companyName'),
+        rangeTitle: document.getElementById('rangeTitle'),
+        calendar: document.getElementById('calendar'),
+        legend: document.getElementById('legend'),
+        todayBtn: document.getElementById('todayBtn'),
+        prevBtn: document.getElementById('prevBtn'),
+        nextBtn: document.getElementById('nextBtn'),
+        addProjectBtn: document.getElementById('addProjectBtn'),
+        undoBtn: document.getElementById('undoBtn'),
+        redoBtn: document.getElementById('redoBtn'),
+        exportBtn: document.getElementById('exportBtn'),
+        importBtn: document.getElementById('importBtn'),
+        importFileInput: document.getElementById('importFileInput'),
+        resetBtn: document.getElementById('resetBtn'),
+        viewButtons: [...document.querySelectorAll('[data-view]')],
+        searchInput: document.getElementById('searchInput'),
+        projectFilterSelect: document.getElementById('projectFilterSelect'),
+        statusFilterSelect: document.getElementById('statusFilterSelect'),
+        priorityFilterSelect: document.getElementById('priorityFilterSelect'),
+        archiveFilterSelect: document.getElementById('archiveFilterSelect'),
+        summaryBox: document.getElementById('summaryBox'),
+        workloadBox: document.getElementById('workloadBox'),
+        projectQuickList: document.getElementById('projectQuickList'),
+        modalBackdrop: document.getElementById('projectModalBackdrop'),
+        modalTitle: document.getElementById('modalTitle'),
+        closeModalBtn: document.getElementById('closeModalBtn'),
+        deleteProjectBtn: document.getElementById('deleteProjectBtn'),
+        duplicateProjectBtn: document.getElementById('duplicateProjectBtn'),
+        archiveProjectBtn: document.getElementById('archiveProjectBtn'),
+        addTaskBtn: document.getElementById('addTaskBtn'),
+        projectNameInput: document.getElementById('projectNameInput'),
+        projectClientInput: document.getElementById('projectClientInput'),
+        projectColorInput: document.getElementById('projectColorInput'),
+        projectDateInput: document.getElementById('projectDateInput'),
+        projectStartInput: document.getElementById('projectStartInput'),
+        projectEndInput: document.getElementById('projectEndInput'),
+        projectStatusInput: document.getElementById('projectStatusInput'),
+        projectPriorityInput: document.getElementById('projectPriorityInput'),
+        projectBillableInput: document.getElementById('projectBillableInput'),
+        projectPlannedHoursInput: document.getElementById('projectPlannedHoursInput'),
+        projectActualHoursInput: document.getElementById('projectActualHoursInput'),
+        projectRecurrenceTypeInput: document.getElementById('projectRecurrenceTypeInput'),
+        projectIntervalInput: document.getElementById('projectIntervalInput'),
+        projectIntervalUnitInput: document.getElementById('projectIntervalUnitInput'),
+        projectRecurrenceEndDateInput: document.getElementById('projectRecurrenceEndDateInput'),
+        projectTagsInput: document.getElementById('projectTagsInput'),
+        projectTemplateSelect: document.getElementById('projectTemplateSelect'),
+        projectWeekdayGroup: document.getElementById('projectWeekdayGroup'),
+        projectNotesInput: document.getElementById('projectNotesInput'),
+        tasksList: document.getElementById('tasksList'),
+        contextMenu: document.getElementById('contextMenu')
+      };
+
+      let state = defaultState();
+      let historyPast = [];
+      let historyFuture = [];
+      let activeProjectId = null;
+      let activeVisibleDate = null;
+      let createDrag = null;
+      let resizeDrag = null;
+      let selectionPreviewEl = null;
+      let lastFocusedTaskRef = null;
+      let suppressHistory = false;
+
+      function uid(){ return crypto?.randomUUID?.() || ('id_' + Math.random().toString(36).slice(2) + Date.now()); }
+      function defaultRecurrence(){ return { type:'none', interval:1, unit:'days', weekdays:[], endDate:'' }; }
+      function defaultTask(projectDate=''){ return { id:uid(), title:'', date:projectDate, allowOutsideProject:true, start:'', end:'', status:'Pendiente', priority:'Media', tags:'', plannedHours:0, actualHours:0, deferredDate:'', deferredStart:'', deferredEnd:'', notes:'', recurrence:defaultRecurrence(), instanceOverrides:{} }; }
+      function defaultState(){ return { companyName:'', view:'week', focusDate:formatDateInput(new Date()), filters:{ search:'', projectId:'all', status:'all', priority:'all', archive:'active' }, projects:[] }; }
+      function normalizeRecurrence(r){ if(!r) return defaultRecurrence(); return { type:r.type||'none', interval:Math.max(1,Number(r.interval||1)), unit:r.unit||'days', weekdays:Array.isArray(r.weekdays)?r.weekdays:[], endDate:r.endDate||'' }; }
+      function normalizeTask(task){ task.recurrence = normalizeRecurrence(task.recurrence); if(!task.instanceOverrides || typeof task.instanceOverrides !== 'object') task.instanceOverrides = {}; if(!task.priority) task.priority='Media'; if(!task.tags) task.tags=''; if(task.plannedHours == null) task.plannedHours = 0; if(task.actualHours == null) task.actualHours = 0; if(task.allowOutsideProject == null) task.allowOutsideProject = true; }
+      function normalizeProject(p){ if(!p.color) p.color='#3b82f6'; if(!p.client) p.client=''; if(!p.status) p.status='Activo'; if(!p.priority) p.priority='Media'; if(typeof p.billable !== 'boolean') p.billable = true; if(p.plannedHours == null) p.plannedHours = 0; if(p.actualHours == null) p.actualHours = 0; if(!p.tags) p.tags=''; p.recurrence = normalizeRecurrence(p.recurrence); if(!Array.isArray(p.tasks)) p.tasks=[]; p.tasks.forEach(normalizeTask); }
+
+      async function loadState() {
+        try {
+          if(supabaseUrl === 'TU_URL_DE_SUPABASE') throw new Error("Supabase no configurado");
+
+          const { data: dbProjects, error: projError } = await supabase.from('projects').select('*');
+          if (projError) throw projError;
+
+          const { data: dbTasks, error: taskError } = await supabase.from('tasks').select('*');
+          if (taskError) throw taskError;
+
+          const stateProjects = dbProjects.map(p => {
+            const projectTasks = dbTasks.filter(t => t.project_id === p.id).map(t => ({
+              id: t.id,
+              title: t.title,
+              date: t.base_date,
+              allowOutsideProject: t.allow_outside_project,
+              start: t.start_time,
+              end: t.end_time,
+              status: t.status,
+              priority: t.priority,
+              tags: t.tags || '',
+              plannedHours: Number(t.planned_hours || 0),
+              actualHours: Number(t.actual_hours || 0),
+              deferredDate: t.deferred_date || '',
+              deferredStart: t.deferred_start || '',
+              deferredEnd: t.deferred_end || '',
+              notes: t.notes || '',
+              recurrence: t.recurrence || defaultRecurrence(),
+              instanceOverrides: t.instance_overrides || {}
+            }));
+
+            return {
+              id: p.id,
+              name: p.name,
+              client: p.client || '',
+              date: p.base_date,
+              start: p.start_time,
+              end: p.end_time,
+              color: p.color,
+              notes: p.notes || '',
+              status: p.status,
+              priority: p.priority,
+              billable: p.billable,
+              plannedHours: Number(p.planned_hours || 0),
+              actualHours: Number(p.actual_hours || 0),
+              tags: p.tags || '',
+              recurrence: p.recurrence || defaultRecurrence(),
+              archivedAt: p.archived_at || '',
+              tasks: projectTasks
+            };
+          });
+
+          stateProjects.forEach(normalizeProject);
+          
+          let filters = { search:'', projectId:'all', status:'all', priority:'all', archive:'active' };
+          let companyName = '';
+          try {
+             const localMeta = JSON.parse(localStorage.getItem('planner_meta') || '{}');
+             if(localMeta.filters) filters = localMeta.filters;
+             if(localMeta.companyName) companyName = localMeta.companyName;
+          } catch(e) {}
+
+          return { companyName, view: 'week', focusDate: formatDateInput(new Date()), filters, projects: stateProjects };
+
+        } catch (error) {
+          console.log('Cargando desde almacenamiento local (Backup/Offline)');
+          try{ const raw = localStorage.getItem(STORAGE_KEY); if(raw) { const p=JSON.parse(raw); p.projects.forEach(normalizeProject); return p; } } catch {}
+          return defaultState();
+        }
+      }
+
+      async function saveState() {
+        localStorage.setItem('planner_meta', JSON.stringify({ filters: state.filters, companyName: state.companyName }));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); 
+
+        try {
+          if(supabaseUrl === 'TU_URL_DE_SUPABASE') return;
+
+          const projectsToUpsert = [];
+          const tasksToUpsert = [];
+
+          state.projects.forEach(p => {
+            projectsToUpsert.push({
+              id: p.id,
+              name: p.name,
+              client: p.client,
+              base_date: p.date,
+              start_time: p.start,
+              end_time: p.end,
+              color: p.color,
+              notes: p.notes,
+              status: p.status,
+              priority: p.priority,
+              billable: p.billable,
+              planned_hours: p.plannedHours,
+              actual_hours: p.actualHours,
+              tags: p.tags,
+              recurrence: p.recurrence,
+              archived_at: p.archivedAt || null
+            });
+
+            p.tasks.forEach(t => {
+              tasksToUpsert.push({
+                id: t.id,
+                project_id: p.id,
+                title: t.title,
+                base_date: t.date,
+                allow_outside_project: t.allowOutsideProject,
+                start_time: t.start,
+                end_time: t.end,
+                status: t.status,
+                priority: t.priority,
+                tags: t.tags,
+                planned_hours: t.plannedHours,
+                actual_hours: t.actualHours,
+                deferred_date: t.deferredDate || null,
+                deferred_start: t.deferredStart || null,
+                deferred_end: t.deferredEnd || null,
+                notes: t.notes,
+                recurrence: t.recurrence,
+                instance_overrides: t.instanceOverrides
+              });
+            });
+          });
+
+          if(projectsToUpsert.length > 0) await supabase.from('projects').upsert(projectsToUpsert);
+          if(tasksToUpsert.length > 0) await supabase.from('tasks').upsert(tasksToUpsert);
+
+        } catch (error) {
+          console.error("Error guardando en Supabase:", error);
+        }
+      }
+
+      function snapshotState(){ return JSON.stringify(state); }
+      function commitHistory(){ if(suppressHistory) return; historyPast.push(snapshotState()); if(historyPast.length > HISTORY_LIMIT) historyPast.shift(); historyFuture = []; updateUndoRedoButtons(); }
+      function restoreSnapshot(raw){ suppressHistory = true; state = JSON.parse(raw); state.projects.forEach(normalizeProject); saveState(); render(); suppressHistory = false; }
+      function undo(){ if(!historyPast.length) return; historyFuture.push(snapshotState()); const prev = historyPast.pop(); restoreSnapshot(prev); updateUndoRedoButtons(); }
+      function redo(){ if(!historyFuture.length) return; historyPast.push(snapshotState()); const next = historyFuture.pop(); restoreSnapshot(next); updateUndoRedoButtons(); }
+      function updateUndoRedoButtons(){ els.undoBtn.disabled = !historyPast.length; els.redoBtn.disabled = !historyFuture.length; }
+
+      function formatDateInput(d){ const y=d.getFullYear(); const m=String(d.getMonth()+1).padStart(2,'0'); const day=String(d.getDate()).padStart(2,'0'); return `${y}-${m}-${day}`; }
+      function parseDateInput(value){ const [y,m,d] = value.split('-').map(Number); return new Date(y,m-1,d); }
+      function startOfWeek(date){ const d=new Date(date); const day=d.getDay(); const diff=day===0 ? -6 : 1-day; d.setDate(d.getDate()+diff); d.setHours(0,0,0,0); return d; }
+      function addDays(date,days){ const d=new Date(date); d.setDate(d.getDate()+days); return d; }
+      function addMonths(date,months){ const d=new Date(date); d.setMonth(d.getMonth()+months); return d; }
+      function sameDate(a,b){ return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate(); }
+      function diffDays(a,b){ const one=new Date(a.getFullYear(),a.getMonth(),a.getDate()); const two=new Date(b.getFullYear(),b.getMonth(),b.getDate()); return Math.round((two-one)/86400000); }
+      function diffMonths(a,b){ return (b.getFullYear()-a.getFullYear())*12 + (b.getMonth()-a.getMonth()); }
+      function weekdayIndex(date){ return (date.getDay()+6)%7; }
+      function timeToMinutes(t){ if(!t) return 0; const [h,m]=t.split(':').map(Number); return h*60+m; }
+      function minutesToTime(total){ const h=Math.floor(total/60); const m=total%60; return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`; }
+      function clampTimeRange(start,end){ let s=Math.max(DAY_START_MIN,start); let e=Math.min(DAY_END_MIN,end); if(e<=s) e=Math.min(DAY_END_MIN,s+30); return [s,e]; }
+      function escapeHtml(str){ return String(str || '').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;'); }
+      function hexToRgb(hex){ const clean=hex.replace('#',''); const bigint=parseInt(clean,16); return { r:(bigint>>16)&255, g:(bigint>>8)&255, b:bigint&255 }; }
+      function rgbToHex(r,g,b){ return '#' + [r,g,b].map(v=>Math.max(0,Math.min(255,v)).toString(16).padStart(2,'0')).join(''); }
+      function darken(hex,amount=.18){ const {r,g,b}=hexToRgb(hex); return rgbToHex(Math.round(r*(1-amount)),Math.round(g*(1-amount)),Math.round(b*(1-amount))); }
+      function lighten(hex,amount=.12){ const {r,g,b}=hexToRgb(hex); return rgbToHex(Math.round(r+(255-r)*amount),Math.round(g+(255-g)*amount),Math.round(b+(255-b)*amount)); }
+      function formatHumanDate(date){ return new Intl.DateTimeFormat('es-ES',{day:'2-digit',month:'short',year:'numeric'}).format(date); }
+      function getProjectById(id){ return state.projects.find(p=>p.id===id); }
+      function priorityClass(p){ return p==='Alta' ? 'p-alta' : p==='Baja' ? 'p-baja' : 'p-media'; }
+      function durationHours(start,end){ if(!start || !end) return 0; return Math.max(0,(timeToMinutes(end)-timeToMinutes(start))/60); }
+      function projectBaseInRange(project,startDate,endDate){ const base=parseDateInput(project.date); return base>=startDate && base<=endDate; }
+
+      function createProject(baseDate=null){
+        const date = baseDate || state.focusDate || formatDateInput(new Date());
+        const project = {
+          id: uid(),
+          name: 'Nuevo proyecto',
+          client: '',
+          date,
+          start: '09:00',
+          end: '10:00',
+          color: '#3b82f6',
+          notes: '',
+          status: 'Activo',
+          priority: 'Media',
+          billable: true,
+          plannedHours: 0,
+          actualHours: 0,
+          tags: '',
+          recurrence: defaultRecurrence(),
+          tasks: [defaultTask(date)]
+        };
+        state.projects.push(project);
+        saveState();
+        render();
+        openProjectModal(project.id, date);
+      }
+
+      function layoutOverlaps(items){
+        const sorted = [...items].sort((a,b) => {
+          if (a.startMin !== b.startMin) return a.startMin - b.startMin;
+          return b.endMin - a.endMin;
+        });
+        let active = [];
+        let cluster = [];
+        function finalizeCluster(clusterItems){
+          if (!clusterItems.length) return;
+          const colsEnd = [];
+          clusterItems.forEach(item => {
+            let col = 0;
+            while (col < colsEnd.length && colsEnd[col] > item.startMin) col++;
+            item.col = col;
+            colsEnd[col] = item.endMin;
+          });
+          const totalCols = Math.max(1, colsEnd.length);
+          clusterItems.forEach(item => item.totalCols = totalCols);
+        }
+        sorted.forEach(item => {
+          active = active.filter(x => x.endMin > item.startMin);
+          if (active.length === 0 && cluster.length) {
+            finalizeCluster(cluster);
+            cluster = [];
+          }
+          active.push(item);
+          cluster.push(item);
+        });
+        finalizeCluster(cluster);
+        return items;
+      }
+
+      function recurrenceOccursOnDate(baseDate, recurrence, dateObj){
+        const r = normalizeRecurrence(recurrence);
+        if(r.endDate){ const endDate = parseDateInput(r.endDate); if(dateObj > endDate) return false; }
+        if(dateObj < baseDate && !sameDate(baseDate,dateObj)) return false;
+        if(r.type==='none') return sameDate(baseDate,dateObj);
+        if(r.type==='daily') return diffDays(baseDate,dateObj) >= 0;
+        if(r.type==='weekly'){ const dd=diffDays(baseDate,dateObj); return dd>=0 && dd%7===0; }
+        if(r.type==='monthly'){ return dateObj.getDate()===baseDate.getDate() && diffMonths(baseDate,dateObj) >= 0; }
+        if(r.type==='interval'){
+          const interval=Math.max(1,Number(r.interval||1)); const unit=r.unit||'days';
+          if(unit==='days'){ const dd=diffDays(baseDate,dateObj); return dd>=0 && dd%interval===0; }
+          if(unit==='weeks'){ const dd=diffDays(baseDate,dateObj); return dd>=0 && dd%(interval*7)===0; }
+          if(unit==='months'){ return dateObj.getDate()===baseDate.getDate() && diffMonths(baseDate,dateObj)>=0 && diffMonths(baseDate,dateObj)%interval===0; }
+        }
+        if(r.type==='weekly_days'){
+          const interval=Math.max(1,Number(r.interval||1)); const weekdays=Array.isArray(r.weekdays)?r.weekdays:[]; if(!weekdays.length) return false;
+          const dateWeekday=WEEKDAY_KEYS[weekdayIndex(dateObj)]; if(!weekdays.includes(dateWeekday)) return false;
+          const baseWeek=startOfWeek(baseDate); const thisWeek=startOfWeek(dateObj); const weekDiff=Math.floor(diffDays(baseWeek,thisWeek)/7);
+          return weekDiff>=0 && weekDiff%interval===0;
+        }
+        return false;
+      }
+
+      function projectOccursOnDate(project,dateObj){ return recurrenceOccursOnDate(parseDateInput(project.date), project.recurrence, dateObj); }
+      function taskOccursOnDate(task, project, dateObj, visibleProjectDate){
+        const base = parseDateInput(task.date || visibleProjectDate || project.date);
+        if(task.allowOutsideProject) return recurrenceOccursOnDate(base, task.recurrence, dateObj);
+        return projectOccursOnDate(project, dateObj) && recurrenceOccursOnDate(base, task.recurrence, dateObj);
+      }
+      function getTaskOverride(task, originDate){ normalizeTask(task); return task.instanceOverrides[originDate] || null; }
+      function setTaskOverride(task, originDate, patch){ normalizeTask(task); const current=task.instanceOverrides[originDate] || {}; task.instanceOverrides[originDate] = { ...current, ...patch }; }
+      function cleanupTaskOverride(task, originDate){ const ov=task.instanceOverrides?.[originDate]; if(!ov) return; const meaningful=Object.keys(ov).filter(k=>{ const v=ov[k]; if(Array.isArray(v)) return v.length>0; return !(v===''||v===null||v===undefined||v===false);}); if(!meaningful.length) delete task.instanceOverrides[originDate]; }
+      function splitTaskFromOccurrence(project, task, originDate){ const clone=JSON.parse(JSON.stringify(task)); clone.id=uid(); clone.date=originDate; clone.instanceOverrides={}; normalizeTask(clone); const prevDay=formatDateInput(addDays(parseDateInput(originDate),-1)); task.recurrence=normalizeRecurrence(task.recurrence); task.recurrence.endDate=prevDay; project.tasks.push(clone); return clone; }
+      function buildTaskOccurrence(task, project, originDate, displayDate, override){
+        const status=override?.status || task.status || 'Pendiente';
+        const title=override?.title ?? task.title;
+        const notes=override?.notes ?? task.notes;
+        const priority=override?.priority ?? task.priority;
+        const tags=override?.tags ?? task.tags;
+        const plannedHours=override?.plannedHours ?? task.plannedHours;
+        const actualHours=override?.actualHours ?? task.actualHours;
+        const effectiveDate = (status==='Aplazada' && override?.deferredDate) ? override.deferredDate : displayDate;
+        const effectiveStart = status==='Aplazada' && override?.deferredStart ? override.deferredStart : (override?.start || task.start);
+        const effectiveEnd = status==='Aplazada' && override?.deferredEnd ? override.deferredEnd : (override?.end || task.end);
+        return { ...task, title, notes, priority, tags, plannedHours, actualHours, originDate, displayDate, effectiveDate, effectiveStart, effectiveEnd, effectiveStatus:status, deleted:!!override?.deleted };
+      }
+
+      function getTaskOccurrencesForDate(project, visibleDate){
+        const visibleDateObj=parseDateInput(visibleDate);
+        const results=[];
+        (project.tasks||[]).forEach(task=>{
+          normalizeTask(task);
+          const baseOccurs=taskOccursOnDate(task,project,visibleDateObj,visibleDate);
+          const ovSameDay=getTaskOverride(task,visibleDate);
+          if(baseOccurs && !ovSameDay?.deleted){
+            if(!(ovSameDay?.status==='Aplazada' && ovSameDay?.deferredDate && ovSameDay.deferredDate!==visibleDate)){
+              results.push(buildTaskOccurrence(task, project, visibleDate, visibleDate, ovSameDay));
+            }
+          }
+          Object.entries(task.instanceOverrides||{}).forEach(([originDate, ov])=>{
+            if(originDate===visibleDate) return;
+            if(ov?.deleted) return;
+            if(ov?.status==='Aplazada' && ov?.deferredDate===visibleDate){
+              results.push(buildTaskOccurrence(task, project, originDate, visibleDate, ov));
+            }
+          });
+        });
+        return results;
+      }
+
+      function matchesFilters(item){
+        const f = state.filters || {};
+        if(f.archive==='active' && item.archived) return false;
+        if(f.archive==='archived' && !item.archived) return false;
+        const search=(f.search||'').trim().toLowerCase();
+        if(search){ const haystack=[item.title,item.notes,item.client,item.projectName,item.status,item.priority,item.tags].filter(Boolean).join(' ').toLowerCase(); if(!haystack.includes(search)) return false; }
+        if(f.projectId!=='all' && item.parentProjectId!==f.projectId && item.sourceId!==f.projectId) return false;
+        if(f.status!=='all'){ if(item.type!=='task') return false; if((item.status||'')!==f.status) return false; }
+        if(f.priority!=='all'){ if((item.priority||'')!==f.priority) return false; }
+        return true;
+      }
+
+      function getOccurrencesForRange(startDate,endDate){
+        const occurrences=[];
+        state.projects.forEach(project=>{
+          const archived=!!project.archivedAt;
+          const hasProjectBaseInRange = projectBaseInRange(project, startDate, endDate);
+          for(let d=new Date(startDate); d<=endDate; d=addDays(d,1)){
+            const visibleDate=formatDateInput(d);
+            const projectVisible = projectOccursOnDate(project,d) || (hasProjectBaseInRange && sameDate(parseDateInput(project.date), d));
+            if(projectVisible){
+              const projOcc={ type:'project', id:`project_${project.id}_${visibleDate}`, sourceId:project.id, parentProjectId:project.id, title:project.name, projectName:project.name, client:project.client, date:visibleDate, start:project.start, end:project.end, color:project.color, notes:project.notes, tags:project.tags, priority:project.priority, status:project.status, archived };
+              if(matchesFilters(projOcc)) occurrences.push(projOcc);
+            }
+            getTaskOccurrencesForDate(project, visibleDate).forEach(taskOcc=>{
+              const taskOccurrence={ type:'task', id:`task_${taskOcc.id}_${taskOcc.originDate}_${taskOcc.effectiveDate}`, sourceId:taskOcc.id, parentProjectId:project.id, title:taskOcc.title||'Tarea', projectName:project.name, client:project.client, date:taskOcc.effectiveDate, originDate:taskOcc.originDate, start:taskOcc.effectiveStart, end:taskOcc.effectiveEnd, color:taskOcc.effectiveStatus==='Completada' ? '#10b981' : lighten(project.color,.12), notes:taskOcc.notes, status:taskOcc.effectiveStatus, priority:taskOcc.priority, tags:taskOcc.tags, archived };
+              if(taskOccurrence.date>=formatDateInput(startDate) && taskOccurrence.date<=formatDateInput(endDate) && matchesFilters(taskOccurrence)){
+                occurrences.push(taskOccurrence);
+              }
+            });
+          }
+        });
+        return occurrences;
+      }
+
+      function getMonthRange(date){ const base=new Date(date.getFullYear(),date.getMonth(),1); const start=startOfWeek(base); const end=addDays(start,41); return {start,end}; }
+      function getWeekRange(date){ const start=startOfWeek(date); const end=addDays(start,6); return {start,end}; }
+      function getDayRange(date){ return { start:new Date(date), end:new Date(date) }; }
+      function currentRange(){ const focus=parseDateInput(state.focusDate); if(state.view==='month') return getMonthRange(focus); if(state.view==='week') return getWeekRange(focus); if(state.view==='day') return getDayRange(focus); return getMonthRange(focus); }
+
+      function renderTitle(){
+        const focus=parseDateInput(state.focusDate);
+        if(state.view==='month'){ els.rangeTitle.textContent=`${MONTH_NAMES[focus.getMonth()]} ${focus.getFullYear()}`; return; }
+        if(state.view==='week'){ const {start,end}=getWeekRange(focus); els.rangeTitle.textContent=`Semana: ${formatHumanDate(start)} – ${formatHumanDate(end)}`; return; }
+        if(state.view==='day'){ els.rangeTitle.textContent=`Día: ${DAY_NAMES[weekdayIndex(focus)]} · ${formatHumanDate(focus)}`; return; }
+        els.rangeTitle.textContent='Vista de lista';
+      }
+      function renderLegend(){ const seen=new Set(); const items=[]; state.projects.forEach(p=>{ if(p.archivedAt && state.filters.archive==='active') return; const key=`${p.name}|${p.color}`; if(!seen.has(key)){ seen.add(key); items.push({name:p.name,color:p.color}); } }); els.legend.innerHTML = items.length ? items.map(i=>`<span class="chip"><span class="chip-dot" style="background:${i.color}"></span>${escapeHtml(i.name)}</span>`).join('') : `<span class="muted">Sin proyectos todavía.</span>`; }
+      function updateFilterControls(){ els.searchInput.value=state.filters.search||''; els.statusFilterSelect.value=state.filters.status||'all'; els.priorityFilterSelect.value=state.filters.priority||'all'; els.archiveFilterSelect.value=state.filters.archive||'active'; const current=state.filters.projectId||'all'; els.projectFilterSelect.innerHTML=['<option value="all">Todos</option>'].concat(state.projects.map(p=>`<option value="${p.id}" ${current===p.id?'selected':''}>${escapeHtml(p.name)}</option>`)).join(''); }
+      function renderSummary(){ const range=currentRange(); const occ=getOccurrencesForRange(range.start,range.end); const tasks=occ.filter(i=>i.type==='task'); const projects=occ.filter(i=>i.type==='project'); const completed=tasks.filter(t=>t.status==='Completada').length; const pending=tasks.filter(t=>t.status==='Pendiente').length; const deferred=tasks.filter(t=>t.status==='Aplazada').length; const billable=state.projects.filter(p=>!p.archivedAt && p.billable).length; els.summaryBox.innerHTML=`<span class="pill">Proyectos visibles: ${projects.length}</span><span class="pill">Tareas visibles: ${tasks.length}</span><span class="pill">Pendientes: ${pending}</span><span class="pill">Completadas: ${completed}</span><span class="pill">Aplazadas: ${deferred}</span><span class="pill">Facturables: ${billable}</span>`; }
+      function renderWorkload(){ const focus=parseDateInput(state.focusDate); const {start,end}=getWeekRange(focus); const occ=getOccurrencesForRange(start,end).filter(o=>o.type==='task'); const byDay={}; let total=0; for(let d=new Date(start); d<=end; d=addDays(d,1)){ byDay[formatDateInput(d)] = 0; } occ.forEach(t=>{ byDay[t.date] = (byDay[t.date] || 0) + durationHours(t.start,t.end); total += durationHours(t.start,t.end); }); els.workloadBox.innerHTML = Object.entries(byDay).map(([date,h])=>`<span class="pill">${formatHumanDate(parseDateInput(date))}: ${h.toFixed(1)} h</span>`).join('') + `<span class="pill">Total semana: ${total.toFixed(1)} h</span>`; }
+      function renderQuickProjects(){ const projects=[...state.projects].filter(p=>state.filters.archive==='all' || (state.filters.archive==='archived' ? !!p.archivedAt : !p.archivedAt)).sort((a,b)=>a.name.localeCompare(b.name,'es')); if(!projects.length){ els.projectQuickList.innerHTML='<div class="empty-state">Todavía no hay proyectos.</div>'; return; } els.projectQuickList.innerHTML=projects.map(p=>`<div class="project-row ${p.archivedAt?'archived':''}" data-open-project="${p.id}"><span class="dot" style="background:${p.color}"></span><div><strong>${escapeHtml(p.name)}</strong><br><span style="font-size:11px;color:var(--muted)">${escapeHtml(p.client||'Sin cliente')} · ${escapeHtml(p.priority||'Media')} · ${escapeHtml(p.status||'Activo')}</span></div><span style="font-size:11px">${p.archivedAt ? 'Archivado' : (p.billable ? 'Facturable' : 'Interno')}</span></div>`).join(''); document.querySelectorAll('[data-open-project]').forEach(el=>{ el.onclick=()=>openProjectModal(el.dataset.openProject,null); }); }
+      function clearCalendar(){ els.calendar.innerHTML=''; }
+
+      function renderMonthView(){
+        clearCalendar();
+        const focus=parseDateInput(state.focusDate); const {start,end}=getMonthRange(focus); const occ=getOccurrencesForRange(start,end); const grid=document.createElement('div'); grid.className='month-grid';
+        DAY_NAMES.forEach(name=>{ const head=document.createElement('div'); head.className='month-head'; head.textContent=name; grid.appendChild(head); });
+        for(let d=new Date(start); d<=end; d=addDays(d,1)){
+          const dateStr=formatDateInput(d); const dayBox=document.createElement('div'); dayBox.className='month-day' + (d.getMonth()!==focus.getMonth() ? ' other-month' : ''); dayBox.dataset.dropDate=dateStr; makeDropTarget(dayBox);
+          const dayItems=occ.filter(item=>item.date===dateStr).sort((a,b)=>timeToMinutes(a.start||'08:00') - timeToMinutes(b.start||'08:00'));
+          dayBox.innerHTML=`<div class="month-day-head"><span class="month-day-number">${d.getDate()}</span><button class="btn btn-blue btn-small" style="padding:4px 8px" data-add-on-date="${dateStr}">+</button></div><div class="month-list">${dayItems.slice(0,8).map(item=>`<div class="month-chip ${item.status==='Completada'?'completed':''}" draggable="true" data-drag-type="${item.type}" data-source-id="${item.sourceId}" data-parent-project-id="${item.parentProjectId}" data-open-parent-project="${item.parentProjectId}" data-origin-date="${item.originDate||item.date}" style="background:${item.status==='Completada'?'#10b981':item.color}">${escapeHtml(item.type==='project' ? item.title : `${item.title} · ${item.projectName}`)}</div>`).join('')}${dayItems.length>8 ? `<div class="muted">+ ${dayItems.length-8} más</div>` : ''}</div>`;
+          grid.appendChild(dayBox);
+        }
+        els.calendar.appendChild(grid);
+        document.querySelectorAll('[data-add-on-date]').forEach(btn=>btn.onclick=()=>{ commitHistory(); createProject(btn.dataset.addOnDate); });
+        document.querySelectorAll('[data-open-parent-project]').forEach(el=>el.onclick=()=>openProjectModal(el.dataset.openParentProject, el.closest('.month-day')?.dataset.dropDate || null));
+        attachDragEvents();
+      }
+
+      function renderTimeGrid(view){
+        clearCalendar();
+        const focus=parseDateInput(state.focusDate); const range=view==='week' ? getWeekRange(focus) : getDayRange(focus); const dates=[]; for(let d=new Date(range.start); d<=range.end; d=addDays(d,1)) dates.push(new Date(d));
+        const wrapper=document.createElement('div'); wrapper.className='calendar';
+        const grid=document.createElement('div'); grid.className=`time-grid ${view}`;
+        const eventsLayer=document.createElement('div'); eventsLayer.className='calendar-events';
+        const corner=document.createElement('div'); corner.className='day-head'; grid.appendChild(corner);
+        dates.forEach(d=>{ const head=document.createElement('div'); head.className='day-head'; head.innerHTML=`<div class="day-name">${DAY_NAMES[weekdayIndex(d)]}</div><div class="day-date">${formatHumanDate(d)}</div>`; grid.appendChild(head); });
+        HOURS.forEach(h=>{ const tc=document.createElement('div'); tc.className='time-cell'; tc.textContent=`${String(h).padStart(2,'0')}:00`; grid.appendChild(tc); dates.forEach((d,dayIndex)=>{ const cell=document.createElement('div'); cell.className='grid-cell'; cell.dataset.dropDate=formatDateInput(d); cell.dataset.dropHour=String(h); cell.dataset.dayIndex=String(dayIndex); makeDropTarget(cell); attachCreateByDrag(cell, dates.length); grid.appendChild(cell); }); });
+        wrapper.appendChild(grid); wrapper.appendChild(eventsLayer); els.calendar.appendChild(wrapper);
+        const occ=getOccurrencesForRange(range.start,range.end); const dayCount=dates.length;
+        dates.forEach((dateObj, dayIndex)=>{
+          const dateStr=formatDateInput(dateObj); const layer=document.createElement('div'); layer.className='day-layer'; layer.style.left=`calc(${(100/dayCount)*dayIndex}% + 0px)`; layer.style.width=`calc(${100/dayCount}% - 0px)`; eventsLayer.appendChild(layer);
+          const dayItems=occ.filter(item=>item.date===dateStr && item.start && item.end).map(item=>{ let s=timeToMinutes(item.start); let e=timeToMinutes(item.end); [s,e]=clampTimeRange(s,e); return { ...item, startMin:s, endMin:e }; }).filter(item=>item.endMin>item.startMin);
+          layoutOverlaps(dayItems);
+          dayItems.forEach(item=>{
+            const top=((item.startMin-DAY_START_MIN)/60)*SLOT_HEIGHT + 2; const height=Math.max(30,((item.endMin-item.startMin)/60)*SLOT_HEIGHT - 4); const gap=4; const totalCols=Math.max(1,item.totalCols||1); const width=`calc(${100/totalCols}% - ${gap+2}px)`; const left=`calc(${(100/totalCols)*item.col}% + ${gap}px)`;
+            const el=document.createElement('div'); el.className=`calendar-event ${item.type} ${item.status==='Completada'?'completed':''} ${item.status==='Aplazada'?'deferred':''}`; el.style.top=`${top}px`; el.style.height=`${height}px`; el.style.left=left; el.style.width=width; el.style.background=item.status==='Completada' ? 'linear-gradient(180deg,#10b981,#059669)' : `linear-gradient(180deg, ${item.color}, ${darken(item.color,.16)})`; el.draggable=true; el.dataset.dragType=item.type; el.dataset.sourceId=item.sourceId; el.dataset.parentProjectId=item.parentProjectId; el.dataset.date=item.date; el.dataset.originDate=item.originDate || item.date; el.innerHTML=`<div class="event-title">${escapeHtml(item.type==='task' ? `${item.title} · ${item.projectName}` : item.title)}</div><div class="event-sub">${escapeHtml(item.start)} · ${escapeHtml(item.end)}</div>${item.type==='task' ? '<div class="resize-handle"></div>' : ''}`;
+            el.addEventListener('click', (ev)=>{ ev.stopPropagation(); openProjectModal(item.parentProjectId, item.date); });
+            el.addEventListener('contextmenu', (ev)=>showContextMenu(ev,item));
+            layer.appendChild(el);
+            if(item.type==='task'){
+              const rh = el.querySelector('.resize-handle');
+              rh.addEventListener('mousedown', ev => startResize(ev, item));
+            }
+          });
+        });
+        renderNowLine(eventsLayer, dates);
+        attachDragEvents();
+      }
+
+      function renderNowLine(eventsLayer, dates){ const now=new Date(); const today=formatDateInput(now); const idx=dates.findIndex(d=>formatDateInput(d)===today); if(idx===-1) return; const mins=now.getHours()*60 + now.getMinutes(); if(mins<DAY_START_MIN || mins>DAY_END_MIN) return; const line=document.createElement('div'); line.className='now-line'; line.style.top=`${((mins-DAY_START_MIN)/60)*SLOT_HEIGHT}px`; line.style.left=`calc(${(100/dates.length)*idx}% + 0px)`; line.style.width=`calc(${100/dates.length}% - 0px)`; eventsLayer.appendChild(line); }
+
+      function renderListView(){ clearCalendar(); const {start,end}=currentRange(); const occ=getOccurrencesForRange(start,end).sort((a,b)=>{ if(a.date!==b.date) return a.date.localeCompare(b.date); return timeToMinutes(a.start||'08:00') - timeToMinutes(b.start||'08:00'); }); const wrapper=document.createElement('div'); wrapper.style.padding='16px'; if(!occ.length){ wrapper.innerHTML='<div class="empty-state">No hay elementos con los filtros actuales.</div>'; els.calendar.appendChild(wrapper); return; } const grouped={}; occ.forEach(item=>{ if(!grouped[item.date]) grouped[item.date]=[]; grouped[item.date].push(item); }); wrapper.innerHTML=Object.entries(grouped).map(([date,items])=>`<div class="card" style="margin-bottom:12px"><h3>${escapeHtml(formatHumanDate(parseDateInput(date)))}</h3><div class="list">${items.map(item=>`<div class="project-row" data-open-project="${item.parentProjectId}"><span class="dot" style="background:${item.status==='Completada' ? '#10b981' : item.color}"></span><div><strong>${escapeHtml(item.title)}</strong><br><span style="font-size:11px;color:var(--muted)">${escapeHtml(item.type==='task' ? item.projectName : (item.client||'Proyecto'))} · ${escapeHtml(item.start||'--:--')} - ${escapeHtml(item.end||'--:--')} · ${escapeHtml(item.priority||'')}</span></div><span style="font-size:11px">${item.tags ? escapeHtml(item.tags) : ''}</span></div>`).join('')}</div></div>`).join(''); els.calendar.appendChild(wrapper); document.querySelectorAll('[data-open-project]').forEach(el=>el.onclick=()=>openProjectModal(el.dataset.openProject,null)); }
+
+      function attachCreateByDrag(cell, dayCount){
+        cell.addEventListener('mousedown', (e)=>{
+          if(e.button!==0 || state.view==='month' || state.view==='list') return;
+          if(e.target.closest('.calendar-event')) return;
+          const date = cell.dataset.dropDate; const hour = Number(cell.dataset.dropHour); const dayIndex = Number(cell.dataset.dayIndex);
+          createDrag = { date, dayIndex, startMin:hour*60, currentMin:(hour+1)*60 };
+          showSelectionPreview(dayCount, createDrag.dayIndex, createDrag.startMin, createDrag.currentMin);
+          document.body.style.userSelect='none';
+          e.preventDefault();
+        });
+      }
+      function showSelectionPreview(dayCount, dayIndex, startMin, endMin){
+        removeSelectionPreview();
+        const preview=document.createElement('div'); preview.className='selection-preview';
+        const top=((Math.min(startMin,endMin)-DAY_START_MIN)/60)*SLOT_HEIGHT + 2; const height=Math.max(30,(Math.abs(endMin-startMin)/60)*SLOT_HEIGHT - 4);
+        preview.style.top=`${top + 70}px`; preview.style.left=`calc(70px + ${(100/dayCount)*dayIndex}% + 4px)`; preview.style.width=`calc(${100/dayCount}% - 10px)`; preview.style.height=`${height}px`;
+        els.calendar.appendChild(preview); selectionPreviewEl = preview;
+      }
+      function removeSelectionPreview(){ if(selectionPreviewEl){ selectionPreviewEl.remove(); selectionPreviewEl=null; } }
+
+      function attachDragEvents(){ document.querySelectorAll('[draggable="true"]').forEach(el=>{ el.addEventListener('dragstart', e=>{ const payload={ type:el.dataset.dragType, sourceId:el.dataset.sourceId, parentProjectId:el.dataset.parentProjectId || null, originDate:el.dataset.originDate || null }; e.dataTransfer.setData('text/plain', JSON.stringify(payload)); }); }); }
+      function makeDropTarget(el){
+        el.addEventListener('dragover', e=>{ e.preventDefault(); el.classList.add('drag-over'); });
+        el.addEventListener('dragleave', ()=>el.classList.remove('drag-over'));
+        el.addEventListener('drop', e=>{
+          e.preventDefault();
+          el.classList.remove('drag-over');
+          let payload;
+          try{ payload=JSON.parse(e.dataTransfer.getData('text/plain')); } catch { return; }
+          const dateStr=el.dataset.dropDate;
+          const hour=el.dataset.dropHour ? Number(el.dataset.dropHour) : null;
+          if(!dateStr) return;
+          commitHistory();
+          if(payload.type==='project'){
+            const project=getProjectById(payload.sourceId);
+            if(!project) return;
+            project.date=dateStr;
+            if(project.recurrence.type==='none') project.recurrence.endDate='';
+            if(hour!==null){
+              const duration=Math.max(30,timeToMinutes(project.end||'10:00')-timeToMinutes(project.start||'09:00'));
+              let start=hour*60; let end=start+duration; [start,end]=clampTimeRange(start,end);
+              project.start=minutesToTime(start); project.end=minutesToTime(end);
+            }
+            if(state.view==='month'){
+              const droppedDate = parseDateInput(dateStr);
+              state.focusDate = formatDateInput(new Date(droppedDate.getFullYear(), droppedDate.getMonth(), 1));
+            }
+          }
+          if(payload.type==='task'){
+            const project=getProjectById(payload.parentProjectId); if(!project) return;
+            const task=project.tasks.find(t=>t.id===payload.sourceId); if(!task) return;
+            const recurring=normalizeRecurrence(task.recurrence).type!=='none';
+            const originDate=payload.originDate || dateStr;
+            if(recurring){
+              setTaskOverride(task, originDate, {
+                status:'Aplazada',
+                deferredDate:dateStr,
+                deferredStart:hour!==null ? minutesToTime(hour*60) : (task.start||''),
+                deferredEnd:hour!==null ? minutesToTime(Math.min(DAY_END_MIN, hour*60 + Math.max(30,timeToMinutes(task.end||'10:00')-timeToMinutes(task.start||'09:00')))) : (task.end||'')
+              });
+              cleanupTaskOverride(task,originDate);
+            } else {
+              task.date=dateStr;
+              task.allowOutsideProject=true;
+              if(hour!==null){
+                const duration=Math.max(30,timeToMinutes(task.end||'10:00')-timeToMinutes(task.start||'09:00'));
+                let start=hour*60; let end=start+duration; [start,end]=clampTimeRange(start,end);
+                task.start=minutesToTime(start); task.end=minutesToTime(end);
+              }
+            }
+          }
+          saveState(); render();
+        });
+      }
+
+      function startResize(e, item){
+        e.preventDefault();
+        e.stopPropagation();
+        resizeDrag = { item, startY:e.clientY, startEnd:timeToMinutes(item.end), minEnd: timeToMinutes(item.start)+30 };
+        document.body.style.userSelect='none';
+      }
+
+      document.addEventListener('mousemove', e=>{
+        if(createDrag){
+          const calendarRect = els.calendar.getBoundingClientRect();
+          const y = e.clientY - calendarRect.top - 70;
+          const mins = DAY_START_MIN + Math.max(0, Math.min((DAY_END_MIN-DAY_START_MIN), Math.round(y / SLOT_HEIGHT * 2) * 30));
+          createDrag.currentMin = Math.max(createDrag.startMin + 30, mins);
+          const dayCount = state.view==='week' ? 7 : 1;
+          showSelectionPreview(dayCount, createDrag.dayIndex, createDrag.startMin, createDrag.currentMin);
+        }
+        if(resizeDrag){
+          const deltaY=e.clientY - resizeDrag.startY;
+          const deltaMinutes=Math.round(deltaY / SLOT_HEIGHT * 2) * 30;
+          const end=Math.max(resizeDrag.minEnd, resizeDrag.startEnd + deltaMinutes);
+          resizeDrag.previewEnd = Math.min(DAY_END_MIN, end);
+        }
+      });
+
+      document.addEventListener('mouseup', ()=>{
+        if(createDrag){
+          const start = minutesToTime(Math.min(createDrag.startMin, createDrag.currentMin));
+          const end = minutesToTime(Math.max(createDrag.startMin+30, createDrag.currentMin));
+          commitHistory();
+          const project = state.projects.find(p=>!p.archivedAt) || null;
+          if(project){ project.tasks.push({ ...defaultTask(createDrag.date), title:'Nueva tarea', start, end, priority:'Media', allowOutsideProject:true }); }
+          else {
+            const p={ id:uid(), name:'Nuevo proyecto', client:'', date:createDrag.date, start, end, color:'#3b82f6', notes:'', status:'Activo', priority:'Media', billable:true, plannedHours:0, actualHours:0, tags:'', recurrence:defaultRecurrence(), tasks:[{ ...defaultTask(createDrag.date), title:'Nueva tarea', start, end, allowOutsideProject:true }] };
+            state.projects.push(p);
+          }
+          saveState(); render(); removeSelectionPreview(); createDrag=null; document.body.style.userSelect='';
+        }
+        if(resizeDrag){
+          const { item } = resizeDrag;
+          if(resizeDrag.previewEnd){
+            commitHistory();
+            const project=getProjectById(item.parentProjectId);
+            const task=project?.tasks.find(t=>t.id===item.sourceId);
+            if(task){
+              const recurring=normalizeRecurrence(task.recurrence).type!=='none';
+              if(recurring){ setTaskOverride(task, item.originDate || item.date, { end: minutesToTime(resizeDrag.previewEnd) }); }
+              else { task.end = minutesToTime(resizeDrag.previewEnd); }
+              saveState(); render();
+            }
+          }
+          resizeDrag = null;
+          document.body.style.userSelect='';
+        }
+      });
+
+      function renderProjectWeekdayChecks(selected){ els.projectWeekdayGroup.innerHTML=WEEKDAY_KEYS.map((key,i)=>`<label class="weekday-item"><input type="checkbox" data-project-weekday="${key}" ${selected.includes(key)?'checked':''}>${DAY_NAMES[i].slice(0,3)}</label>`).join(''); document.querySelectorAll('[data-project-weekday]').forEach(el=>el.addEventListener('change', updateActiveProjectFromModal)); }
+      function openProjectModal(projectId, visibleDate=null){ activeProjectId=projectId; activeVisibleDate=visibleDate||null; const project=getProjectById(projectId); if(!project) return; normalizeProject(project); els.modalTitle.textContent=project.name||'Proyecto'; els.projectNameInput.value=project.name||''; els.projectClientInput.value=project.client||''; els.projectColorInput.value=project.color||'#3b82f6'; els.projectDateInput.value=project.date||''; els.projectStartInput.value=project.start||''; els.projectEndInput.value=project.end||''; els.projectStatusInput.value=project.status||'Activo'; els.projectPriorityInput.value=project.priority||'Media'; els.projectBillableInput.value=String(project.billable!==false); els.projectPlannedHoursInput.value=project.plannedHours||0; els.projectActualHoursInput.value=project.actualHours||0; els.projectRecurrenceTypeInput.value=project.recurrence.type||'none'; els.projectIntervalInput.value=project.recurrence.interval||1; els.projectIntervalUnitInput.value=project.recurrence.unit||'days'; els.projectRecurrenceEndDateInput.value=project.recurrence.endDate||''; els.projectTagsInput.value=project.tags||''; els.projectTemplateSelect.value=''; els.projectNotesInput.value=project.notes||''; els.archiveProjectBtn.textContent = project.archivedAt ? 'Desarchivar' : 'Archivar'; renderProjectWeekdayChecks(project.recurrence.weekdays||[]); renderTasks(project, visibleDate || project.date); els.modalBackdrop.classList.add('show'); }
+      function closeProjectModal(){ activeProjectId=null; activeVisibleDate=null; els.modalBackdrop.classList.remove('show'); hideContextMenu(); }
+      function updateActiveProjectFromModal(){ const project=getProjectById(activeProjectId); if(!project) return; project.recurrence=normalizeRecurrence(project.recurrence); project.name=els.projectNameInput.value||'Proyecto'; project.client=els.projectClientInput.value||''; project.color=els.projectColorInput.value||'#3b82f6'; project.date=els.projectDateInput.value||project.date; project.start=els.projectStartInput.value||project.start; project.end=els.projectEndInput.value||project.end; project.status=els.projectStatusInput.value||'Activo'; project.priority=els.projectPriorityInput.value||'Media'; project.billable=els.projectBillableInput.value==='true'; project.plannedHours=Number(els.projectPlannedHoursInput.value||0); project.actualHours=Number(els.projectActualHoursInput.value||0); project.notes=els.projectNotesInput.value||''; project.tags=els.projectTagsInput.value||''; project.recurrence.type=els.projectRecurrenceTypeInput.value||'none'; project.recurrence.interval=Math.max(1,Number(els.projectIntervalInput.value||1)); project.recurrence.unit=els.projectIntervalUnitInput.value||'days'; project.recurrence.endDate=els.projectRecurrenceEndDateInput.value||''; project.recurrence.weekdays=[...document.querySelectorAll('[data-project-weekday]:checked')].map(el=>el.dataset.projectWeekday); saveState(); render(); }
+      function statusClass(status){ return { Pendiente:'st-pendiente', Completada:'st-completada', Aplazada:'st-aplazada' }[status] || 'st-pendiente'; }
+      function renderTaskWeekdayChecks(taskOccurrence){ const recurrence=normalizeRecurrence(taskOccurrence.recurrence); return `<div class="weekday-group">${WEEKDAY_KEYS.map((key,i)=>`<label class="weekday-item"><input type="checkbox" data-task-weekday="${taskOccurrence.id}:${key}" ${recurrence.weekdays.includes(key)?'checked':''}>${DAY_NAMES[i].slice(0,3)}</label>`).join('')}</div>`; }
+
+      function renderTasks(project, visibleDate){
+        const taskOccurrences=getTaskOccurrencesForDate(project, visibleDate);
+        if(!taskOccurrences.length){ els.tasksList.innerHTML='<div class="empty-state">Todavía no hay tareas para esta fecha. Añade una para comenzar.</div>'; return; }
+        els.tasksList.innerHTML=taskOccurrences.map(taskOcc=>{ const recurring=normalizeRecurrence(taskOcc.recurrence).type!=='none'; const showDeferred=taskOcc.effectiveStatus==='Aplazada'; return `<div class="task-card ${taskOcc.effectiveStatus==='Completada' ? 'completed' : ''}"><div class="task-header" style="grid-template-columns:1.5fr repeat(5,minmax(0,1fr));"><div class="field"><label style="font-size:13px;font-weight:900;color:var(--navy)">${escapeHtml(taskOcc.title||'Nueva tarea')}</label><input type="text" value="${escapeHtml(taskOcc.title||'')}" data-task-title="${taskOcc.id}" data-origin-date="${taskOcc.originDate}"><span class="status-badge ${statusClass(taskOcc.effectiveStatus)}">${taskOcc.effectiveStatus}</span><div style="margin-top:6px"><span class="priority-badge ${priorityClass(taskOcc.priority||'Media')}">${escapeHtml(taskOcc.priority||'Media')}</span></div><div class="muted" style="margin-top:6px">${recurring ? `Serie repetida · ocurrencia del ${taskOcc.originDate}` : 'Tarea no repetida'}</div></div><div class="field"><label>Fecha base</label><input type="date" value="${taskOcc.date || visibleDate || project.date}" data-task-date="${taskOcc.id}" data-origin-date="${taskOcc.originDate}"></div><div class="field"><label>Inicio</label><input type="time" value="${taskOcc.start||''}" data-task-start="${taskOcc.id}" data-origin-date="${taskOcc.originDate}"></div><div class="field"><label>Fin</label><input type="time" value="${taskOcc.end||''}" data-task-end="${taskOcc.id}" data-origin-date="${taskOcc.originDate}"></div><div class="field"><label>Estado</label><select data-task-status="${taskOcc.id}" data-origin-date="${taskOcc.originDate}">${['Pendiente','Completada','Aplazada','Anulada'].map(s=>`<option value="${s}" ${taskOcc.effectiveStatus===s?'selected':''}>${s}</option>`).join('')}</select></div><div class="field"><label>Prioridad</label><select data-task-priority="${taskOcc.id}" data-origin-date="${taskOcc.originDate}"><option ${taskOcc.priority==='Alta'?'selected':''}>Alta</option><option ${(!taskOcc.priority || taskOcc.priority==='Media')?'selected':''}>Media</option><option ${taskOcc.priority==='Baja'?'selected':''}>Baja</option></select></div></div><div class="scope-grid"><div class="field"><label>Aplicar cambios a</label><select data-task-scope="${taskOcc.id}"><option value="this">Solo esta ocurrencia</option><option value="following">Esta y siguientes</option><option value="series">Toda la serie</option></select></div><div class="muted">Las tareas pueden tener su propia fecha aunque el proyecto no esté ese día.</div></div><div class="task-recurrence-grid"><div class="field"><label>Frecuencia de la tarea</label><select data-task-recurrence-type="${taskOcc.id}" data-origin-date="${taskOcc.originDate}"><option value="none" ${taskOcc.recurrence.type==='none'?'selected':''}>No repetir</option><option value="daily" ${taskOcc.recurrence.type==='daily'?'selected':''}>Diaria</option><option value="weekly" ${taskOcc.recurrence.type==='weekly'?'selected':''}>Semanal</option><option value="monthly" ${taskOcc.recurrence.type==='monthly'?'selected':''}>Mensual</option><option value="interval" ${taskOcc.recurrence.type==='interval'?'selected':''}>Cada X...</option><option value="weekly_days" ${taskOcc.recurrence.type==='weekly_days'?'selected':''}>Días concretos</option></select></div><div class="field"><label>Intervalo</label><input type="number" min="1" value="${taskOcc.recurrence.interval||1}" data-task-recurrence-interval="${taskOcc.id}" data-origin-date="${taskOcc.originDate}"></div><div class="field"><label>Unidad</label><select data-task-recurrence-unit="${taskOcc.id}" data-origin-date="${taskOcc.originDate}"><option value="days" ${taskOcc.recurrence.unit==='days'?'selected':''}>Días</option><option value="weeks" ${taskOcc.recurrence.unit==='weeks'?'selected':''}>Semanas</option><option value="months" ${taskOcc.recurrence.unit==='months'?'selected':''}>Meses</option></select></div><div class="field"><label>Fecha tope recurrencia</label><input type="date" value="${taskOcc.recurrence.endDate||''}" data-task-recurrence-end="${taskOcc.id}" data-origin-date="${taskOcc.originDate}"></div><div class="field"><label>Horas previstas / reales</label><div class="row-inline"><input type="number" min="0" step="0.25" value="${taskOcc.plannedHours||0}" data-task-planned="${taskOcc.id}" data-origin-date="${taskOcc.originDate}"><input type="number" min="0" step="0.25" value="${taskOcc.actualHours||0}" data-task-actual="${taskOcc.id}" data-origin-date="${taskOcc.originDate}"></div></div></div><div class="field" style="margin-top:10px"><label>Días concretos de la tarea</label>${renderTaskWeekdayChecks(taskOcc)}</div><div class="task-header-tight"><div class="field"><label>Observaciones</label><textarea data-task-notes="${taskOcc.id}" data-origin-date="${taskOcc.originDate}" placeholder="Descripción, notas, enlaces, instrucciones...">${escapeHtml(taskOcc.notes||'')}</textarea></div><div class="field"><label>Tags</label><input type="text" value="${escapeHtml(taskOcc.tags||'')}" data-task-tags="${taskOcc.id}" data-origin-date="${taskOcc.originDate}" placeholder="ej: urgente, fiscal"></div><div class="field"><label>Google Calendar</label><button class="btn btn-blue btn-small" style="width:100%" data-task-calendar="${taskOcc.id}" data-origin-date="${taskOcc.originDate}">Añadir</button></div><div class="field"><label>${recurring ? 'Eliminar según alcance' : 'Eliminar tarea'}</label><button class="btn btn-danger btn-small" style="width:100%" data-task-delete="${taskOcc.id}" data-origin-date="${taskOcc.originDate}">Eliminar</button></div><div class="field"><label>&nbsp;</label><div class="muted">Clic derecho sobre el evento para el menú rápido.</div></div></div><div class="task-deferred ${showDeferred ? '' : 'hidden'}"><div class="field"><label>Nueva fecha si se aplaza</label><input type="date" value="${getTaskOverride(taskOcc, taskOcc.originDate)?.deferredDate || ''}" data-task-deferred-date="${taskOcc.id}" data-origin-date="${taskOcc.originDate}"></div><div class="field"><label>Nueva hora inicio</label><input type="time" value="${getTaskOverride(taskOcc, taskOcc.originDate)?.deferredStart || ''}" data-task-deferred-start="${taskOcc.id}" data-origin-date="${taskOcc.originDate}"></div><div class="field"><label>Nueva hora fin</label><input type="time" value="${getTaskOverride(taskOcc, taskOcc.originDate)?.deferredEnd || ''}" data-task-deferred-end="${taskOcc.id}" data-origin-date="${taskOcc.originDate}"></div></div></div>`; }).join(''); bindTaskEvents(project, visibleDate); }
+
+      function bindTaskEvents(project, visibleDate){
+        function getBaseTask(taskId){ return project.tasks.find(x=>x.id===taskId); }
+        function getScope(taskId){ return document.querySelector(`[data-task-scope="${taskId}"]`)?.value || 'this'; }
+        function applyTaskChange(task, originDate, scope, applyFn){ const recurring=normalizeRecurrence(task.recurrence).type!=='none'; if(!recurring){ applyFn(task,'single'); return task; } if(scope==='series'){ applyFn(task,'series'); return task; } if(scope==='following'){ const clone=splitTaskFromOccurrence(project, task, originDate); applyFn(clone,'following'); return clone; } applyFn(task,'this'); return task; }
+        function setOccurrencePatch(task, originDate, patch){ setTaskOverride(task, originDate, patch); cleanupTaskOverride(task, originDate); }
+        function registerFocus(taskId, originDate){ lastFocusedTaskRef = { taskId, originDate, projectId: project.id }; }
+        const inputs = els.tasksList.querySelectorAll('input,select,textarea,button');
+        inputs.forEach(el => { if(el.dataset.originDate){ const id = Object.values(el.dataset)[0]; el.addEventListener('focus', ()=>registerFocus(id, el.dataset.originDate)); } });
+
+        const bySelector=(selector, handler)=>els.tasksList.querySelectorAll(selector).forEach(el=>{ const evt = el.tagName==='SELECT' ? 'change' : 'input'; el.addEventListener(evt, ()=>handler(el)); });
+
+        bySelector('[data-task-title]', el => { commitHistory(); const task=getBaseTask(el.dataset.taskTitle); const originDate=el.dataset.originDate; applyTaskChange(task, originDate, getScope(task.id), (target,mode)=>{ if(mode==='this') setOccurrencePatch(target,originDate,{ title:el.value }); else target.title=el.value; }); saveState(); render(); });
+        bySelector('[data-task-date]', el => { commitHistory(); const task=getBaseTask(el.dataset.taskDate); const originDate=el.dataset.originDate; applyTaskChange(task, originDate, getScope(task.id), (target,mode)=>{ if(mode==='this') setOccurrencePatch(target,originDate,{ deferredDate:el.value, status:'Aplazada' }); else { target.date=el.value; target.allowOutsideProject=true; } }); saveState(); render(); });
+        bySelector('[data-task-start]', el => { commitHistory(); const task=getBaseTask(el.dataset.taskStart); const originDate=el.dataset.originDate; applyTaskChange(task, originDate, getScope(task.id), (target,mode)=>{ if(mode==='this') setOccurrencePatch(target,originDate,{ start:el.value }); else target.start=el.value; }); saveState(); render(); });
+        bySelector('[data-task-end]', el => { commitHistory(); const task=getBaseTask(el.dataset.taskEnd); const originDate=el.dataset.originDate; applyTaskChange(task, originDate, getScope(task.id), (target,mode)=>{ if(mode==='this') setOccurrencePatch(target,originDate,{ end:el.value }); else target.end=el.value; }); saveState(); render(); });
+        bySelector('[data-task-priority]', el => { commitHistory(); const task=getBaseTask(el.dataset.taskPriority); const originDate=el.dataset.originDate; applyTaskChange(task, originDate, getScope(task.id), (target,mode)=>{ if(mode==='this') setOccurrencePatch(target,originDate,{ priority:el.value }); else target.priority=el.value; }); saveState(); render(); });
+        bySelector('[data-task-notes]', el => { const task=getBaseTask(el.dataset.taskNotes); const originDate=el.dataset.originDate; applyTaskChange(task, originDate, getScope(task.id), (target,mode)=>{ if(mode==='this') setOccurrencePatch(target,originDate,{ notes:el.value }); else target.notes=el.value; }); saveState(); });
+        bySelector('[data-task-tags]', el => { commitHistory(); const task=getBaseTask(el.dataset.taskTags); const originDate=el.dataset.originDate; applyTaskChange(task, originDate, getScope(task.id), (target,mode)=>{ if(mode==='this') setOccurrencePatch(target,originDate,{ tags:el.value }); else target.tags=el.value; }); saveState(); render(); });
+        bySelector('[data-task-planned]', el => { commitHistory(); const task=getBaseTask(el.dataset.taskPlanned); const originDate=el.dataset.originDate; applyTaskChange(task, originDate, getScope(task.id), (target,mode)=>{ const val=Number(el.value||0); if(mode==='this') setOccurrencePatch(target,originDate,{ plannedHours:val }); else target.plannedHours=val; }); saveState(); render(); });
+        bySelector('[data-task-actual]', el => { commitHistory(); const task=getBaseTask(el.dataset.taskActual); const originDate=el.dataset.originDate; applyTaskChange(task, originDate, getScope(task.id), (target,mode)=>{ const val=Number(el.value||0); if(mode==='this') setOccurrencePatch(target,originDate,{ actualHours:val }); else target.actualHours=val; }); saveState(); render(); });
+
+        els.tasksList.querySelectorAll('[data-task-status]').forEach(el=>{ el.addEventListener('change', ()=>{ commitHistory(); const task=getBaseTask(el.dataset.taskStatus); const originDate=el.dataset.originDate; const scope=getScope(task.id); const value=el.value; applyTaskChange(task, originDate, scope, async (target,mode)=>{ if(mode==='this'){ if(value==='Anulada') setOccurrencePatch(target,originDate,{ deleted:true, status:'' }); else if(value==='Completada') setOccurrencePatch(target,originDate,{ status:'Completada', deleted:false }); else if(value==='Aplazada') setOccurrencePatch(target,originDate,{ status:'Aplazada', deleted:false }); else setOccurrencePatch(target,originDate,{ status:'Pendiente', deleted:false, deferredDate:'', deferredStart:'', deferredEnd:'' }); } else { if(value==='Anulada'){ if(mode==='following'){ target.recurrence.endDate = formatDateInput(addDays(parseDateInput(originDate),-1)); } else { project.tasks = project.tasks.filter(x=>x.id!==target.id); if(supabaseUrl !== 'TU_URL_DE_SUPABASE') await supabase.from('tasks').delete().eq('id', target.id); } } else { target.status=value; if(value!=='Aplazada'){ target.deferredDate=''; target.deferredStart=''; target.deferredEnd=''; } } } }); saveState(); render(); }); });
+        els.tasksList.querySelectorAll('[data-task-recurrence-type]').forEach(el=>{ el.addEventListener('change', ()=>{ commitHistory(); const task=getBaseTask(el.dataset.taskRecurrenceType); const originDate=el.dataset.originDate; applyTaskChange(task, originDate, getScope(task.id), target=>{ target.recurrence=normalizeRecurrence(target.recurrence); target.recurrence.type=el.value; }); saveState(); render(); }); });
+        els.tasksList.querySelectorAll('[data-task-recurrence-interval]').forEach(el=>{ el.addEventListener('input', ()=>{ commitHistory(); const task=getBaseTask(el.dataset.taskRecurrenceInterval); const originDate=el.dataset.originDate; applyTaskChange(task, originDate, getScope(task.id), target=>{ target.recurrence=normalizeRecurrence(target.recurrence); target.recurrence.interval=Math.max(1,Number(el.value||1)); }); saveState(); render(); }); });
+        els.tasksList.querySelectorAll('[data-task-recurrence-unit]').forEach(el=>{ el.addEventListener('change', ()=>{ commitHistory(); const task=getBaseTask(el.dataset.taskRecurrenceUnit); const originDate=el.dataset.originDate; applyTaskChange(task, originDate, getScope(task.id), target=>{ target.recurrence=normalizeRecurrence(target.recurrence); target.recurrence.unit=el.value; }); saveState(); render(); }); });
+        els.tasksList.querySelectorAll('[data-task-recurrence-end]').forEach(el=>{ el.addEventListener('change', ()=>{ commitHistory(); const task=getBaseTask(el.dataset.taskRecurrenceEnd); const originDate=el.dataset.originDate; applyTaskChange(task, originDate, getScope(task.id), target=>{ target.recurrence=normalizeRecurrence(target.recurrence); target.recurrence.endDate=el.value||''; }); saveState(); render(); }); });
+        els.tasksList.querySelectorAll('[data-task-weekday]').forEach(el=>{ el.addEventListener('change', ()=>{ commitHistory(); const [taskId,weekday]=el.dataset.taskWeekday.split(':'); const task=getBaseTask(taskId); const originDate=visibleDate; applyTaskChange(task, originDate, getScope(task.id), target=>{ target.recurrence=normalizeRecurrence(target.recurrence); if(el.checked){ if(!target.recurrence.weekdays.includes(weekday)) target.recurrence.weekdays.push(weekday); } else target.recurrence.weekdays=target.recurrence.weekdays.filter(w=>w!==weekday); }); saveState(); render(); }); });
+        els.tasksList.querySelectorAll('[data-task-deferred-date]').forEach(el=>{ el.addEventListener('input', ()=>{ commitHistory(); const task=getBaseTask(el.dataset.taskDeferredDate); const originDate=el.dataset.originDate; applyTaskChange(task, originDate, getScope(task.id), (target,mode)=>{ if(mode==='this') setOccurrencePatch(target,originDate,{ status:'Aplazada', deferredDate:el.value }); else { target.status='Aplazada'; target.deferredDate=el.value; } }); saveState(); render(); }); });
+        els.tasksList.querySelectorAll('[data-task-deferred-start]').forEach(el=>{ el.addEventListener('input', ()=>{ commitHistory(); const task=getBaseTask(el.dataset.taskDeferredStart); const originDate=el.dataset.originDate; applyTaskChange(task, originDate, getScope(task.id), (target,mode)=>{ if(mode==='this') setOccurrencePatch(target,originDate,{ status:'Aplazada', deferredStart:el.value }); else { target.status='Aplazada'; target.deferredStart=el.value; } }); saveState(); render(); }); });
+        els.tasksList.querySelectorAll('[data-task-deferred-end]').forEach(el=>{ el.addEventListener('input', ()=>{ commitHistory(); const task=getBaseTask(el.dataset.taskDeferredEnd); const originDate=el.dataset.originDate; applyTaskChange(task, originDate, getScope(task.id), (target,mode)=>{ if(mode==='this') setOccurrencePatch(target,originDate,{ status:'Aplazada', deferredEnd:el.value }); else { target.status='Aplazada'; target.deferredEnd=el.value; } }); saveState(); render(); }); });
+        els.tasksList.querySelectorAll('[data-task-delete]').forEach(el=>{ el.addEventListener('click', ()=>{ commitHistory(); const task=getBaseTask(el.dataset.taskDelete); const originDate=el.dataset.originDate; const scope=getScope(task.id); applyTaskChange(task, originDate, scope, async (target,mode)=>{ if(mode==='this') setOccurrencePatch(target,originDate,{ deleted:true, status:'' }); else if(mode==='following'){ target.recurrence=normalizeRecurrence(target.recurrence); target.recurrence.endDate = formatDateInput(addDays(parseDateInput(originDate),-1)); } else { project.tasks = project.tasks.filter(x=>x.id!==target.id); if(supabaseUrl !== 'TU_URL_DE_SUPABASE') await supabase.from('tasks').delete().eq('id', target.id); } }); saveState(); render(); }); });
+        els.tasksList.querySelectorAll('[data-task-calendar]').forEach(el=>{ el.addEventListener('click', ()=>{ const task=getBaseTask(el.dataset.taskCalendar); const originDate=el.dataset.originDate; const occurrence=buildTaskOccurrence(task, project, originDate, visibleDate, getTaskOverride(task,originDate)); addTaskToCalendar(project, occurrence); }); });
+      }
+
+      function addTaskToCalendar(project, occurrence){ const date=occurrence.effectiveDate || occurrence.displayDate || project.date; const start=occurrence.effectiveStart || occurrence.start; const end=occurrence.effectiveEnd || occurrence.end; if(!date||!start||!end){ alert('La tarea necesita fecha, hora de inicio y hora de fin.'); return; } const startDt=new Date(`${date}T${start}`); const endDt=new Date(`${date}T${end}`); function toUTC(d){ const y=d.getUTCFullYear(); const m=String(d.getUTCMonth()+1).padStart(2,'0'); const da=String(d.getUTCDate()).padStart(2,'0'); const h=String(d.getUTCHours()).padStart(2,'0'); const mi=String(d.getUTCMinutes()).padStart(2,'0'); const s=String(d.getUTCSeconds()).padStart(2,'0'); return `${y}${m}${da}T${h}${mi}${s}Z`; } const text=`${project.name} · ${occurrence.title || 'Tarea'}`; const details=[`Proyecto: ${project.name}`,`Cliente: ${project.client || '-'}`,`Estado: ${occurrence.effectiveStatus || occurrence.status || '-'}`,`Prioridad: ${occurrence.priority || '-'}`,`Tags: ${occurrence.tags || '-'}`,`Ocurrencia original: ${occurrence.originDate || date}`,`Notas del proyecto: ${project.notes || '-'}`,`Observaciones de la tarea: ${occurrence.notes || '-'}`].join('\n'); const url=`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(text)}&dates=${toUTC(startDt)}/${toUTC(endDt)}&details=${encodeURIComponent(details)}`; window.open(url,'_blank'); }
+
+      function showContextMenu(ev,item){
+        ev.preventDefault();
+        ev.stopPropagation();
+        els.contextMenu.innerHTML=`<div class="context-item" data-cm-action="open">Abrir</div>${item.type==='task' ? '<div class="context-item" data-cm-action="complete">Marcar completada</div><div class="context-item" data-cm-action="defer">Aplazar a mañana</div><div class="context-item" data-cm-action="delete">Eliminar</div>' : '<div class="context-item" data-cm-action="duplicate-project">Duplicar proyecto</div>'}`;
+        els.contextMenu.style.left=`${ev.clientX}px`;
+        els.contextMenu.style.top=`${ev.clientY}px`;
+        els.contextMenu.classList.add('show');
+        els.contextMenu.querySelectorAll('[data-cm-action]').forEach(el=>{ el.onclick=async ()=>{ const act=el.dataset.cmAction; hideContextMenu(); if(act==='open') openProjectModal(item.parentProjectId, item.date); if(act==='duplicate-project'){ commitHistory(); const project=getProjectById(item.parentProjectId); const clone=JSON.parse(JSON.stringify(project)); clone.id=uid(); clone.name += ' (copia)'; clone.tasks=clone.tasks.map(t=>({ ...t, id:uid() })); state.projects.push(clone); saveState(); render(); }
+          if(item.type==='task'){ const project=getProjectById(item.parentProjectId); const task=project?.tasks.find(t=>t.id===item.sourceId); if(!task) return; commitHistory(); if(act==='complete'){ const recurring=normalizeRecurrence(task.recurrence).type!=='none'; if(recurring) setTaskOverride(task, item.originDate || item.date, { status:'Completada' }); else task.status='Completada'; }
+            if(act==='defer'){ const tomorrow=formatDateInput(addDays(parseDateInput(item.date),1)); const recurring=normalizeRecurrence(task.recurrence).type!=='none'; if(recurring) setTaskOverride(task, item.originDate || item.date, { status:'Aplazada', deferredDate:tomorrow, deferredStart:task.start, deferredEnd:task.end }); else { task.status='Aplazada'; task.deferredDate=tomorrow; task.deferredStart=task.start; task.deferredEnd=task.end; } }
+            if(act==='delete'){ const recurring=normalizeRecurrence(task.recurrence).type!=='none'; if(recurring) setTaskOverride(task, item.originDate || item.date, { deleted:true }); else { project.tasks = project.tasks.filter(t=>t.id!==task.id); if(supabaseUrl !== 'TU_URL_DE_SUPABASE') await supabase.from('tasks').delete().eq('id', task.id); } }
+            saveState(); render(); }
+        }; }); }
+      function hideContextMenu(){ els.contextMenu.classList.remove('show'); }
+      document.addEventListener('click', ()=>hideContextMenu());
+
+      function exportState(){ const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='planner-pro-v2-export.json'; a.click(); URL.revokeObjectURL(url); }
+      function importState(file){ const reader=new FileReader(); reader.onload=()=>{ try{ const parsed=JSON.parse(reader.result); if(!parsed || !Array.isArray(parsed.projects)) throw new Error(); commitHistory(); state=parsed; if(!state.filters) state.filters={ search:'', projectId:'all', status:'all', priority:'all', archive:'active' }; state.projects.forEach(normalizeProject); saveState(); render(); } catch { alert('No se ha podido importar el archivo JSON.'); } }; reader.readAsText(file); }
+
+      function createProjectTemplate(template, baseDate){ if(template==='legal'){ return { client:'', status:'Activo', priority:'Alta', billable:true, plannedHours:4, actualHours:0, tags:'legal, documentos', notes:'Plantilla legal', tasks:[ { ...defaultTask(baseDate), title:'Revisión documentación', start:'09:00', end:'10:00', priority:'Alta', tags:'revisión' }, { ...defaultTask(baseDate), title:'Redacción', start:'10:15', end:'11:30', priority:'Alta', tags:'redacción' } ] }; } if(template==='asesoria'){ return { client:'', status:'Activo', priority:'Media', billable:true, plannedHours:3, actualHours:0, tags:'asesoría, fiscal', notes:'Plantilla asesoría', tasks:[ { ...defaultTask(baseDate), title:'Revisión expediente', start:'09:00', end:'10:00', tags:'expediente' }, { ...defaultTask(baseDate), title:'Llamada cliente', start:'10:15', end:'10:45', tags:'cliente' } ] }; } if(template==='consultoria'){ return { client:'', status:'Activo', priority:'Media', billable:true, plannedHours:5, actualHours:0, tags:'consultoría', notes:'Plantilla consultoría', tasks:[ { ...defaultTask(baseDate), title:'Análisis inicial', start:'09:00', end:'10:30', tags:'análisis' }, { ...defaultTask(baseDate), title:'Entregable', start:'11:00', end:'12:30', tags:'entregable' } ] }; } return null; }
+      function applyTemplateToProject(project, templateCode){ const data=createProjectTemplate(templateCode, project.date); if(!data) return; Object.assign(project, { ...project, ...data, tasks:data.tasks }); }
+
+      function attachGlobalEvents(){
+        els.companyName.addEventListener('input', ()=>{ state.companyName=els.companyName.value; saveState(); });
+        els.todayBtn.addEventListener('click', ()=>{ commitHistory(); state.focusDate=formatDateInput(new Date()); saveState(); render(); });
+        els.prevBtn.addEventListener('click', ()=>{ commitHistory(); const focus=parseDateInput(state.focusDate); if(state.view==='month' || state.view==='list') state.focusDate=formatDateInput(addMonths(focus,-1)); else if(state.view==='week') state.focusDate=formatDateInput(addDays(focus,-7)); else state.focusDate=formatDateInput(addDays(focus,-1)); saveState(); render(); });
+        els.nextBtn.addEventListener('click', ()=>{ commitHistory(); const focus=parseDateInput(state.focusDate); if(state.view==='month' || state.view==='list') state.focusDate=formatDateInput(addMonths(focus,1)); else if(state.view==='week') state.focusDate=formatDateInput(addDays(focus,7)); else state.focusDate=formatDateInput(addDays(focus,1)); saveState(); render(); });
+        els.addProjectBtn.addEventListener('click', ()=>{ commitHistory(); createProject(); });
+        els.undoBtn.addEventListener('click', undo);
+        els.redoBtn.addEventListener('click', redo);
+        els.exportBtn.addEventListener('click', exportState);
+        els.importBtn.addEventListener('click', ()=>els.importFileInput.click());
+        els.importFileInput.addEventListener('change', ()=>{ const file=els.importFileInput.files?.[0]; if(file) importState(file); els.importFileInput.value=''; });
+        els.resetBtn.addEventListener('click', ()=>{ if(confirm('Se restablecerá el planificador completo.')){ commitHistory(); state=defaultState(); saveState(); render(); closeProjectModal(); } });
+        els.viewButtons.forEach(btn=>btn.addEventListener('click', ()=>{ state.view=btn.dataset.view; saveState(); render(); }));
+        els.searchInput.addEventListener('input', ()=>{ state.filters.search=els.searchInput.value; saveState(); render(); });
+        els.projectFilterSelect.addEventListener('change', ()=>{ state.filters.projectId=els.projectFilterSelect.value; saveState(); render(); });
+        els.statusFilterSelect.addEventListener('change', ()=>{ state.filters.status=els.statusFilterSelect.value; saveState(); render(); });
+        els.priorityFilterSelect.addEventListener('change', ()=>{ state.filters.priority=els.priorityFilterSelect.value; saveState(); render(); });
+        els.archiveFilterSelect.addEventListener('change', ()=>{ state.filters.archive=els.archiveFilterSelect.value; saveState(); render(); });
+        [els.projectNameInput,els.projectClientInput,els.projectColorInput,els.projectDateInput,els.projectStartInput,els.projectEndInput,els.projectStatusInput,els.projectPriorityInput,els.projectBillableInput,els.projectPlannedHoursInput,els.projectActualHoursInput,els.projectRecurrenceTypeInput,els.projectIntervalInput,els.projectIntervalUnitInput,els.projectRecurrenceEndDateInput,els.projectTagsInput,els.projectNotesInput].forEach(el=>{ el.addEventListener('input', updateActiveProjectFromModal); el.addEventListener('change', updateActiveProjectFromModal); });
+        els.projectTemplateSelect.addEventListener('change', ()=>{ const project=getProjectById(activeProjectId); if(!project) return; commitHistory(); applyTemplateToProject(project, els.projectTemplateSelect.value); saveState(); renderTasks(project, activeVisibleDate || project.date); render(); });
+        els.closeModalBtn.addEventListener('click', closeProjectModal);
+        els.modalBackdrop.addEventListener('click', e=>{ if(e.target===els.modalBackdrop) closeProjectModal(); });
+        els.addTaskBtn.addEventListener('click', ()=>{ const project=getProjectById(activeProjectId); if(!project) return; commitHistory(); project.tasks.push(defaultTask(activeVisibleDate || state.focusDate || project.date)); saveState(); renderTasks(project, activeVisibleDate || state.focusDate || project.date); render(); });
+        els.duplicateProjectBtn.addEventListener('click', ()=>{ const project=getProjectById(activeProjectId); if(!project) return; commitHistory(); const clone=JSON.parse(JSON.stringify(project)); clone.id=uid(); clone.name=`${clone.name} (copia)`; clone.recurrence=normalizeRecurrence(clone.recurrence); clone.tasks=clone.tasks.map(t=>{ t.id=uid(); normalizeTask(t); return t; }); state.projects.push(clone); saveState(); render(); });
+        els.archiveProjectBtn.addEventListener('click', ()=>{ const project=getProjectById(activeProjectId); if(!project) return; commitHistory(); if(project.archivedAt) project.archivedAt=''; else project.archivedAt=new Date().toISOString(); saveState(); render(); openProjectModal(project.id, activeVisibleDate || project.date); });
+        
+        els.deleteProjectBtn.addEventListener('click', async ()=>{ 
+          if(!activeProjectId) return; 
+          if(confirm('¿Eliminar este proyecto y todas sus tareas?')){ 
+            commitHistory(); 
+            state.projects = state.projects.filter(p=>p.id!==activeProjectId); 
+            if(supabaseUrl !== 'TU_URL_DE_SUPABASE') {
+              await supabase.from('projects').delete().eq('id', activeProjectId);
+            }
+            saveState(); 
+            render(); 
+            closeProjectModal(); 
+          } 
+        });
+
+        document.addEventListener('keydown', async e=>{
+          const meta = e.ctrlKey || e.metaKey;
+          if(meta && !e.shiftKey && e.key.toLowerCase()==='z'){ e.preventDefault(); undo(); }
+          if(meta && ((e.shiftKey && e.key.toLowerCase()==='z') || e.key.toLowerCase()==='y')){ e.preventDefault(); redo(); }
+          if(e.key==='Escape'){ closeProjectModal(); hideContextMenu(); }
+          if(e.key.toLowerCase()==='n' && !meta && !e.target.matches('input,textarea,select')){ e.preventDefault(); commitHistory(); createProject(); }
+          if(e.key.toLowerCase()==='t' && !meta && !e.target.matches('input,textarea,select') && activeProjectId){ e.preventDefault(); const p=getProjectById(activeProjectId); if(p){ commitHistory(); p.tasks.push(defaultTask(activeVisibleDate || state.focusDate || p.date)); saveState(); renderTasks(p, activeVisibleDate || state.focusDate || p.date); render(); } }
+          if(e.key==='Delete' && lastFocusedTaskRef && !e.target.matches('input,textarea,select')){ const project=getProjectById(lastFocusedTaskRef.projectId); const task=project?.tasks.find(t=>t.id===lastFocusedTaskRef.taskId); if(task){ commitHistory(); const recurring=normalizeRecurrence(task.recurrence).type!=='none'; if(recurring) setTaskOverride(task, lastFocusedTaskRef.originDate, { deleted:true }); else { project.tasks=project.tasks.filter(t=>t.id!==task.id); if(supabaseUrl !== 'TU_URL_DE_SUPABASE') await supabase.from('tasks').delete().eq('id', task.id); } saveState(); render(); } }
+        });
+      }
+
+      function runSelfTests(){
+        console.assert(typeof layoutOverlaps === 'function', 'layoutOverlaps debe existir');
+        console.assert(typeof createProject === 'function', 'createProject debe existir');
+      }
+
+      function updateViewButtons(){ els.viewButtons.forEach(btn=>btn.classList.toggle('active', btn.dataset.view===state.view)); }
+      function render(){ els.companyName.value=state.companyName||''; updateViewButtons(); updateFilterControls(); renderTitle(); if(state.view==='month') renderMonthView(); else if(state.view==='week') renderTimeGrid('week'); else if(state.view==='day') renderTimeGrid('day'); else renderListView(); renderLegend(); renderSummary(); renderWorkload(); renderQuickProjects(); saveState(); updateUndoRedoButtons(); }
+
+      attachGlobalEvents();
+      runSelfTests();
+      
+      // Arranque
+      async function initApp() {
+        els.calendar.innerHTML = '<div style="padding: 20px; color: var(--muted); text-align: center;">Conectando...</div>';
+        state = await loadState();
+        render();
+      }
+
+      initApp();
+    })();
+  </script>
+</body>
+</html>
