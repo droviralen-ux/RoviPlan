@@ -5,81 +5,185 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>RoviPlan</title>
   <style>
-    :root{--bg:#f3f6f9;--panel:#ffffff;--line:#e2e8f0;--text:#1e293b;--muted:#64748b;--navy:#0f172a;--navy2:#1e293b;--blue:#3b82f6;--blue-hover:#2563eb;--green:#10b981;--amber:#f59e0b;--red:#ef4444;--shadow-sm:0 1px 2px 0 rgb(0 0 0 / 0.05);--shadow-md:0 4px 6px -1px rgb(0 0 0 / 0.1),0 2px 4px -2px rgb(0 0 0 / 0.1);--shadow-lg:0 10px 15px -3px rgb(0 0 0 / 0.1),0 4px 6px -4px rgb(0 0 0 / 0.1);--hourW:70px;--headerH:70px;--slotH:60px;--sidebarW:320px;--radius:16px}
-    *{box-sizing:border-box}
-    html,body{margin:0;padding:0;font-family:'Inter',system-ui,-apple-system,sans-serif;color:var(--text);background:var(--bg);height:100vh;overflow:hidden}
-    body{padding:16px}
-    button,input,select,textarea{font:inherit}
-    button{cursor:pointer}
-    #authScreen{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center}
-    .auth-card{background:#fff;padding:30px;border-radius:var(--radius);box-shadow:var(--shadow-lg);width:100%;max-width:360px;display:flex;flex-direction:column;gap:16px}
-    .auth-card h2{margin:0;color:var(--navy);text-align:center}
-    .auth-card input{width:100%;padding:12px;border:1px solid var(--line);border-radius:8px}
-    .auth-error{color:var(--red);font-size:13px;text-align:center;min-height:20px}
-    .app{height:100%;width:100%;display:flex;flex-direction:column;gap:16px}
-    .topbar{background:#ffffff;color:var(--navy);border-radius:var(--radius);padding:20px 24px;box-shadow:var(--shadow-sm);border:1px solid var(--line);flex-shrink:0}
-    .topbar-row{display:grid;grid-template-columns:1fr auto;gap:20px;align-items:center}
-    .title{margin:0 0 4px 0;font-size:24px;font-weight:700;letter-spacing:-0.5px}
-    .subtitle{margin:0;color:var(--muted);font-size:14px}
-    .company-input{margin-top:12px;width:min(400px,100%);border:1px solid var(--line);background:var(--bg);color:var(--text);border-radius:8px;padding:10px 14px;outline:none;transition:border 0.2s}
-    .company-input:focus{border-color:var(--blue)}
-    .actions,.view-switch,.field-inline,.weekday-group,.row-inline,.toolbar-right{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-    .btn{border:none;border-radius:8px;padding:10px 16px;font-weight:600;font-size:14px;transition:all 0.2s ease;display:inline-flex;align-items:center;justify-content:center}
-    .btn:hover{transform:translateY(-1px);box-shadow:var(--shadow-sm)}
-    .btn:active{transform:translateY(0)}
-    .btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;box-shadow:none}
-    .btn-white{background:#fff;color:var(--navy);border:1px solid var(--line)}
-    .btn-white:hover{background:var(--bg)}
-    .btn-ghost{background:transparent;color:var(--muted)}
-    .btn-ghost:hover{background:var(--bg);color:var(--text)}
-    .btn-blue{background:var(--bg);color:var(--blue-hover);border:1px solid transparent}
-    .btn-blue:hover{background:#e0e7ff}
-    .btn-blue.active{background:var(--blue);color:#fff;box-shadow:var(--shadow-md)}
-    .btn-danger{background:#fef2f2;color:var(--red)}
-    .btn-danger:hover{background:#fee2e2}
-    .toolbar-secondary{display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
-    .shell{display:grid;grid-template-columns:var(--sidebarW) 1fr;gap:16px;flex:1;min-height:0}
-    .sidebar,.calendar-shell{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-sm);display:flex;flex-direction:column;height:100%;overflow:hidden}
-    .sidebar-head,.calendar-toolbar{padding:16px 20px;border-bottom:1px solid var(--line);background:#fafafa;flex-shrink:0}
-    .sidebar-head h2{margin:0;font-size:16px;font-weight:700;color:var(--navy)}
-    .sidebar-body{padding:20px;display:flex;flex-direction:column;gap:20px;flex:1;overflow-y:auto}
-    .calendar{position:relative;overflow:auto;background:#fff;flex:1;min-height:0}
-    .card{border:1px solid var(--line);border-radius:12px;background:#ffffff;padding:16px;box-shadow:var(--shadow-sm);flex-shrink:0}
-    .card h3{margin:0 0 12px;font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px}
-    .field label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px}
-    input[type="text"],input[type="date"],input[type="time"],input[type="number"],select,textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:10px;background:var(--bg);color:var(--text);outline:none;transition:0.2s;font-size:14px}
-    input:focus,select:focus,textarea:focus{border-color:var(--blue);background:#fff;box-shadow:0 0 0 3px rgba(59,130,246,0.1)}
-    textarea{resize:vertical;min-height:80px}
-    .pill{display:inline-flex;align-items:center;gap:6px;border-radius:6px;padding:6px 10px;font-size:12px;font-weight:500;background:var(--bg);color:var(--text);border:1px solid var(--line)}
-    .project-row{display:grid;grid-template-columns:12px 1fr auto;gap:12px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:12px;background:#fff;cursor:pointer;transition:0.2s}
-    .project-row:hover{border-color:var(--blue);box-shadow:var(--shadow-sm)}
-    .dot{width:12px;height:12px;border-radius:50%}
-    .time-grid{display:grid;min-width:1200px}
-    .time-grid.week{grid-template-columns:var(--hourW) repeat(7,minmax(160px,1fr))}
-    .time-grid.day{grid-template-columns:var(--hourW) minmax(500px,1fr);min-width:100%}
-    .day-head{height:var(--headerH);padding:12px;display:flex;flex-direction:column;justify-content:center;align-items:center;position:sticky;top:0;z-index:4;background:rgba(255,255,255,0.95);backdrop-filter:blur(4px);border-bottom:1px solid var(--line)}
-    .day-name{font-weight:600;font-size:14px;color:var(--text)}
-    .day-date{font-size:12px;color:var(--muted);margin-top:4px}
-    .time-cell{border-right:1px solid var(--line);border-bottom:1px dashed var(--line);height:var(--slotH);padding:8px;font-size:12px;color:var(--muted);text-align:right}
-    .grid-cell{border-right:1px solid var(--line);border-bottom:1px dashed var(--line);height:var(--slotH);position:relative}
+    :root {
+      --bg: #f3f6f9;
+      --panel: #ffffff;
+      --line: #e2e8f0;
+      --text: #1e293b;
+      --muted: #64748b;
+      --navy: #0f172a;
+      --navy2: #1e293b;
+      --blue: #3b82f6;
+      --blue-hover: #2563eb;
+      --green: #10b981;
+      --amber: #f59e0b;
+      --red: #ef4444;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+      --hourW: 70px;
+      --headerH: 70px;
+      --slotH: 60px;
+      --sidebarW: 320px;
+      --radius: 16px;
+    }
+
+    * { box-sizing: border-box; }
+
+    /* Ajuste estricto al 100% de la ventana del navegador */
+    html, body {
+      margin: 0; 
+      padding: 0;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden; 
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+    }
+
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+
+    /* Pantalla de Autenticación */
+    #authScreen {
+      position: fixed; inset: 0; background: var(--bg); z-index: 9999;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+    }
+    .auth-card {
+      background: #fff; padding: 30px; border-radius: var(--radius);
+      box-shadow: var(--shadow-lg); width: 100%; max-width: 360px;
+      display: flex; flex-direction: column; gap: 16px;
+    }
+    .auth-card h2 { margin: 0; color: var(--navy); text-align: center; }
+    .auth-card input { width: 100%; padding: 12px; border: 1px solid var(--line); border-radius: 8px; }
+    .auth-error { color: var(--red); font-size: 13px; text-align: center; min-height: 20px; }
+
+    /* Contenedor principal ajustado */
+    .app { 
+      display: flex; 
+      flex-direction: column; 
+      gap: 16px; 
+      width: 100%; 
+      height: 100%; 
+      padding: 16px; 
+    }
+
+    .topbar {
+      background: #ffffff; color: var(--navy); border-radius: var(--radius);
+      padding: 16px 24px; box-shadow: var(--shadow-sm); border: 1px solid var(--line);
+      flex-shrink: 0;
+    }
+    .topbar-row { display: grid; grid-template-columns: 1fr auto; gap: 20px; align-items: center; }
+    .title { margin: 0 0 4px 0; font-size: 24px; font-weight: 700; letter-spacing: -0.5px; }
+    .subtitle { margin: 0; color: var(--muted); font-size: 14px; }
+    .company-input {
+      margin-top: 8px; width: min(400px, 100%);
+      border: 1px solid var(--line); background: var(--bg); color: var(--text);
+      border-radius: 8px; padding: 8px 14px; outline: none; transition: border 0.2s;
+    }
+    .company-input:focus { border-color: var(--blue); }
+
+    .actions, .view-switch, .field-inline, .weekday-group, .row-inline, .toolbar-right { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .btn {
+      border: none; border-radius: 8px; padding: 10px 16px; font-weight: 600; font-size: 14px;
+      transition: all 0.2s ease; display: inline-flex; align-items: center; justify-content: center;
+    }
+    .btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+    .btn:active { transform: translateY(0); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    .btn-white { background: #fff; color: var(--navy); border: 1px solid var(--line); }
+    .btn-white:hover { background: var(--bg); }
+    .btn-ghost { background: transparent; color: var(--muted); }
+    .btn-ghost:hover { background: var(--bg); color: var(--text); }
+    .btn-blue { background: var(--bg); color: var(--blue-hover); border: 1px solid transparent; }
+    .btn-blue:hover { background: #e0e7ff; }
+    .btn-blue.active { background: var(--blue); color: #fff; box-shadow: var(--shadow-md); }
+    .btn-danger { background: #fef2f2; color: var(--red); }
+    .btn-danger:hover { background: #fee2e2; }
+
+    .toolbar-secondary { display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+    
+    /* El grid que se estira y absorbe el espacio restante */
+    .shell { 
+      display: grid; 
+      grid-template-columns: var(--sidebarW) 1fr; 
+      gap: 16px; 
+      flex: 1; 
+      min-height: 0; 
+    }
+
+    .sidebar, .calendar-shell {
+      background: var(--panel); border: 1px solid var(--line);
+      border-radius: var(--radius); box-shadow: var(--shadow-sm); 
+      display: flex; flex-direction: column; min-height: 0;
+    }
+    .sidebar-head, .calendar-toolbar {
+      padding: 16px 20px; border-bottom: 1px solid var(--line); background: #fafafa; flex-shrink: 0;
+    }
+    .sidebar-head h2 { margin: 0; font-size: 16px; font-weight: 700; color: var(--navy); }
+    
+    /* Scrollers internos */
+    .sidebar-body { padding: 20px; display: flex; flex-direction: column; gap: 20px; overflow-y: auto; flex: 1; }
+    .calendar { position: relative; overflow: auto; background: #fff; flex: 1; }
+
+    .card { border: 1px solid var(--line); border-radius: 12px; background: #ffffff; padding: 16px; box-shadow: var(--shadow-sm); flex-shrink: 0; }
+    .card h3 { margin: 0 0 12px; font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .field label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
+    input[type="text"], input[type="date"], input[type="time"], input[type="number"], select, textarea {
+      width: 100%; border: 1px solid var(--line); border-radius: 8px; padding: 10px;
+      background: var(--bg); color: var(--text); outline: none; transition: 0.2s; font-size: 14px;
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--blue); background: #fff; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
+    textarea { resize: vertical; min-height: 80px; }
+
+    .pill { display: inline-flex; align-items: center; gap: 6px; border-radius: 6px; padding: 6px 10px; font-size: 12px; font-weight: 500; background: var(--bg); color: var(--text); border: 1px solid var(--line); }
+    .project-row {
+      display: grid; grid-template-columns: 12px 1fr auto; gap: 12px; align-items: center;
+      border: 1px solid var(--line); border-radius: 8px; padding: 12px; background: #fff; cursor: pointer; transition: 0.2s;
+    }
+    .project-row:hover { border-color: var(--blue); box-shadow: var(--shadow-sm); }
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+
+    .time-grid { display: grid; min-width: 1200px; }
+    .time-grid.week { grid-template-columns: var(--hourW) repeat(7, minmax(160px, 1fr)); }
+    .time-grid.day { grid-template-columns: var(--hourW) minmax(500px, 1fr); min-width: 100%; }
+
+    .day-head {
+      height: var(--headerH); padding: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center;
+      position: sticky; top: 0; z-index: 4; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(4px); border-bottom: 1px solid var(--line);
+    }
+    .day-name { font-weight: 600; font-size: 14px; color: var(--text); }
+    .day-date { font-size: 12px; color: var(--muted); margin-top: 4px; }
+    .time-cell { border-right: 1px solid var(--line); border-bottom: 1px dashed var(--line); height: var(--slotH); padding: 8px; font-size: 12px; color: var(--muted); text-align: right; }
+    .grid-cell { border-right: 1px solid var(--line); border-bottom: 1px dashed var(--line); height: var(--slotH); position: relative; }
     .grid-cell.drag-over,.month-day.drag-over{background:#edf5ff !important;outline:2px dashed #93c5fd;outline-offset:-2px}
-    .calendar-event{position:absolute;border-radius:8px;padding:8px;color:#fff;box-shadow:var(--shadow-sm);overflow:hidden;pointer-events:auto;cursor:grab;border:1px solid rgba(0,0,0,0.1);transition:transform 0.1s}
-    .calendar-event:hover{transform:scale(1.01);z-index:10 !important;box-shadow:var(--shadow-md)}
-    .event-title{font-size:13px;font-weight:600;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .event-sub{font-size:11px;opacity:0.9}
-    .modal-backdrop{position:fixed;inset:0;background:rgba(15,23,42,0.6);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:50;padding:20px}
-    .modal-backdrop.show{display:flex}
-    .modal{width:min(1000px,100%);max-height:90vh;overflow:auto;background:#fff;border-radius:var(--radius);box-shadow:var(--shadow-lg)}
-    .modal-head{padding:20px 24px;border-bottom:1px solid var(--line);position:sticky;top:0;background:#fff;z-index:10;display:flex;justify-content:space-between;align-items:center}
-    .modal-body{padding:24px}
-    .form-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
-    .full{grid-column:1 / -1}
-    .span2{grid-column:span 2}
-    .context-menu{position:fixed;background:#fff;border:1px solid var(--line);border-radius:8px;box-shadow:var(--shadow-md);padding:6px;z-index:100;min-width:200px;display:none}
-    .context-menu.show{display:block}
-    .context-item{padding:8px 12px;border-radius:6px;font-size:13px;cursor:pointer;color:var(--text)}
-    .context-item:hover{background:var(--bg);color:var(--blue)}
-    .hidden{display:none !important}
+
+    .calendar-event {
+      position: absolute; border-radius: 8px; padding: 8px; color: #fff;
+      box-shadow: var(--shadow-sm); overflow: hidden; pointer-events: auto; cursor: grab;
+      border: 1px solid rgba(0,0,0,0.1); transition: transform 0.1s;
+    }
+    .calendar-event:hover { transform: scale(1.01); z-index: 10 !important; box-shadow: var(--shadow-md); }
+    .event-title { font-size: 13px; font-weight: 600; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .event-sub { font-size: 11px; opacity: 0.9; }
+
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 50; padding: 20px; }
+    .modal-backdrop.show { display: flex; }
+    .modal { width: min(1000px, 100%); max-height: 90vh; overflow: auto; background: #fff; border-radius: var(--radius); box-shadow: var(--shadow-lg); display: flex; flex-direction: column;}
+    .modal-head { padding: 20px 24px; border-bottom: 1px solid var(--line); position: sticky; top: 0; background: #fff; z-index: 10; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;}
+    .modal-body { padding: 24px; }
+    .form-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+    .full { grid-column: 1 / -1; }
+    .span2 { grid-column: span 2; }
+
+    .context-menu { position: fixed; background: #fff; border: 1px solid var(--line); border-radius: 8px; box-shadow: var(--shadow-md); padding: 6px; z-index: 100; min-width: 200px; display: none; }
+    .context-menu.show { display: block; }
+    .context-item { padding: 8px 12px; border-radius: 6px; font-size: 13px; cursor: pointer; color: var(--text); }
+    .context-item:hover { background: var(--bg); color: var(--blue); }
+    
+    .hidden { display: none !important; }
     .selection-preview{position:absolute;background:rgba(37,99,235,.18);border:2px solid rgba(37,99,235,.35);pointer-events:none;border-radius:12px;z-index:8}
     .calendar-events{position:absolute;top:var(--headerH);left:var(--hourW);right:0;bottom:0;pointer-events:none}
     .day-layer{position:absolute;top:0;bottom:0;pointer-events:none}
@@ -94,7 +198,7 @@
     .month-day-number{font-weight:800;color:#17355e}
     .month-list{display:flex;flex-direction:column;gap:6px}
     .month-chip{border-radius:10px;padding:6px 8px;color:#fff;font-size:11px;font-weight:700;cursor:grab;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-    .legend{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:12px 16px;border-top:1px solid var(--line);background:#fcfeff;flex-shrink:0}
+    .legend{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:12px 16px;border-top:1px solid var(--line);background:#fcfeff; flex-shrink: 0;}
     .chip{display:inline-flex;align-items:center;gap:8px;background:#f4f8fd;border:1px solid var(--line);padding:8px 10px;border-radius:999px;font-size:12px;color:#1c365b}
     .chip-dot{width:12px;height:12px;border-radius:999px;border:1px solid rgba(0,0,0,.08)}
     .modal-title{font-size:20px;font-weight:800;color:#18385f;margin:0}
@@ -118,18 +222,19 @@
     .task-deferred{margin-top:10px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;padding:10px;border-radius:14px;background:#fff7e6;border:1px solid #fde7a9}
     .note-bar{margin-top:12px;background:#eff6ff;border:1px solid #bfdbfe;color:#1e3a5f;padding:10px 12px;border-radius:12px;font-size:13px}
     .empty-state{padding:18px;border:1px dashed #c9d8eb;border-radius:16px;background:#f9fbff;color:#5c708b;font-size:14px}
-    @media (max-width:1024px){
-      html,body{height:auto;overflow:auto;min-height:100vh}
-      .app{height:auto}
-      .shell{grid-template-columns:1fr;display:flex;flex-direction:column}
-      .sidebar,.calendar-shell{height:auto;flex:none;overflow:visible}
-      .calendar{min-height:500px}
-      .form-grid{grid-template-columns:1fr 1fr}
+    
+    @media (max-width: 1024px) {
+      html, body { height: auto; overflow: auto; min-height: 100vh; }
+      .app { height: auto; }
+      .shell { grid-template-columns: 1fr; display: flex; flex-direction: column; }
+      .sidebar, .calendar-shell { height: auto; flex: none; overflow: visible; }
+      .calendar { min-height: 500px; }
+      .form-grid { grid-template-columns: 1fr 1fr; }
       .task-header,.task-header-tight,.task-recurrence-grid,.scope-grid{grid-template-columns:1fr 1fr}
     }
-    @media (max-width:600px){
-      .form-grid{grid-template-columns:1fr}
-      .topbar-row{grid-template-columns:1fr}
+    @media (max-width: 600px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .topbar-row { grid-template-columns: 1fr; }
       .task-header,.task-header-tight,.task-recurrence-grid,.scope-grid,.task-deferred{grid-template-columns:1fr}
     }
   </style>
@@ -224,9 +329,21 @@
               </select>
             </div>
           </div>
-          <div class="card"><h3>Resumen</h3><div id="summaryBox" class="list"></div></div>
-          <div class="card"><h3>Carga semanal</h3><div id="workloadBox" class="list"></div></div>
-          <div class="card"><h3>Proyectos</h3><div id="projectQuickList" class="list"></div></div>
+
+          <div class="card">
+            <h3>Resumen</h3>
+            <div id="summaryBox" class="list"></div>
+          </div>
+
+          <div class="card">
+            <h3>Carga semanal</h3>
+            <div id="workloadBox" class="list"></div>
+          </div>
+
+          <div class="card">
+            <h3>Proyectos</h3>
+            <div id="projectQuickList" class="list"></div>
+          </div>
         </div>
       </aside>
 
@@ -253,28 +370,35 @@
           <button class="btn btn-white btn-small" id="closeModalBtn">Cerrar</button>
         </div>
       </div>
+
       <div class="modal-body">
         <div class="form-grid">
           <div class="field span2"><label>Nombre del proyecto</label><input type="text" id="projectNameInput" /></div>
           <div class="field"><label>Cliente</label><input type="text" id="projectClientInput" placeholder="Cliente / cuenta" /></div>
           <div class="field"><label>Color</label><input type="color" id="projectColorInput" /></div>
+
           <div class="field"><label>Fecha base</label><input type="date" id="projectDateInput" /></div>
           <div class="field"><label>Hora inicio</label><input type="time" id="projectStartInput" /></div>
           <div class="field"><label>Hora fin</label><input type="time" id="projectEndInput" /></div>
           <div class="field"><label>Estado del proyecto</label><select id="projectStatusInput"><option>Activo</option><option>En espera</option><option>Completado</option></select></div>
+
           <div class="field"><label>Prioridad</label><select id="projectPriorityInput"><option>Alta</option><option selected>Media</option><option>Baja</option></select></div>
           <div class="field"><label>Facturable</label><select id="projectBillableInput"><option value="true">Sí</option><option value="false">No</option></select></div>
           <div class="field"><label>Horas previstas</label><input type="number" min="0" step="0.25" id="projectPlannedHoursInput" /></div>
           <div class="field"><label>Horas reales</label><input type="number" min="0" step="0.25" id="projectActualHoursInput" /></div>
+
           <div class="field"><label>Frecuencia</label><select id="projectRecurrenceTypeInput"><option value="none">No repetir</option><option value="daily">Diaria</option><option value="weekly">Semanal</option><option value="monthly">Mensual</option><option value="interval">Cada X...</option><option value="weekly_days">Días concretos</option></select></div>
           <div class="field"><label>Intervalo</label><input type="number" min="1" id="projectIntervalInput" value="1" /></div>
           <div class="field"><label>Unidad intervalo</label><select id="projectIntervalUnitInput"><option value="days">Días</option><option value="weeks">Semanas</option><option value="months">Meses</option></select></div>
           <div class="field"><label>Fecha tope recurrencia</label><input type="date" id="projectRecurrenceEndDateInput" /></div>
+
           <div class="field span2"><label>Tags</label><input type="text" id="projectTagsInput" placeholder="ej: fiscal, urgente, cliente-a" /></div>
           <div class="field span2"><label>Plantilla</label><select id="projectTemplateSelect"><option value="">Sin plantilla</option><option value="legal">Legal</option><option value="asesoria">Asesoría</option><option value="consultoria">Consultoría</option></select></div>
+
           <div class="field full"><label>Días concretos de recurrencia</label><div class="weekday-group" id="projectWeekdayGroup"></div></div>
           <div class="field full"><label>Observaciones del proyecto</label><textarea id="projectNotesInput" placeholder="Descripción, notas, enlaces, contexto..."></textarea></div>
         </div>
+
         <h3 class="section-title">Tareas del proyecto</h3>
         <div id="tasksList" class="tasks-list"></div>
       </div>
@@ -297,6 +421,7 @@
       const DAY_NAMES = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
       const WEEKDAY_KEYS = ['mon','tue','wed','thu','fri','sat','sun'];
 
+      // TUS CLAVES REALES DE SUPABASE
       const supabaseUrl = 'https://kublywmnmeripbmfdqxc.supabase.co';
       const supabaseKey = 'sb_publishable_13-EJ5fUP_7UHRuSumgF1g_TKb-c5kY';
       const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
@@ -379,6 +504,7 @@
         try {
           const { data: dbProjects, error: projError } = await supabase.from('projects').select('*');
           if (projError) throw projError;
+
           const { data: dbTasks, error: taskError } = await supabase.from('tasks').select('*');
           if (taskError) throw taskError;
 
@@ -386,14 +512,18 @@
             const projectTasks = dbTasks.filter(t => t.project_id === p.id).map(t => ({
               id: t.id, title: t.title, date: t.base_date, allowOutsideProject: t.allow_outside_project, start: t.start_time, end: t.end_time, status: t.status, priority: t.priority, tags: t.tags || '', plannedHours: Number(t.planned_hours || 0), actualHours: Number(t.actual_hours || 0), deferredDate: t.deferred_date || '', deferredStart: t.deferred_start || '', deferredEnd: t.deferred_end || '', notes: t.notes || '', recurrence: t.recurrence || defaultRecurrence(), instanceOverrides: t.instance_overrides || {}
             }));
+
             return {
               id: p.id, name: p.name, client: p.client || '', date: p.base_date, start: p.start_time, end: p.end_time, color: p.color, notes: p.notes || '', status: p.status, priority: p.priority, billable: p.billable, plannedHours: Number(p.planned_hours || 0), actualHours: Number(p.actual_hours || 0), tags: p.tags || '', recurrence: p.recurrence || defaultRecurrence(), archivedAt: p.archived_at || '', tasks: projectTasks
             };
           });
+
           stateProjects.forEach(normalizeProject);
+          
           let filters = { search:'', projectId:'all', status:'all', priority:'all', archive:'active' };
           let companyName = '';
           try { const localMeta = JSON.parse(localStorage.getItem('planner_meta') || '{}'); if(localMeta.filters) filters = localMeta.filters; if(localMeta.companyName) companyName = localMeta.companyName; } catch(e) {}
+
           return { companyName, view: 'week', focusDate: formatDateInput(new Date()), filters, projects: stateProjects };
         } catch (error) {
           console.log('Error de carga');
@@ -406,10 +536,12 @@
         try {
           const projectsToUpsert = [];
           const tasksToUpsert = [];
+
           state.projects.forEach(p => {
             projectsToUpsert.push({ id: p.id, name: p.name, client: p.client, base_date: p.date, start_time: p.start, end_time: p.end, color: p.color, notes: p.notes, status: p.status, priority: p.priority, billable: p.billable, planned_hours: p.plannedHours, actual_hours: p.actualHours, tags: p.tags, recurrence: p.recurrence, archived_at: p.archivedAt || null });
             p.tasks.forEach(t => { tasksToUpsert.push({ id: t.id, project_id: p.id, title: t.title, base_date: t.date, allow_outside_project: t.allowOutsideProject, start_time: t.start, end_time: t.end, status: t.status, priority: t.priority, tags: t.tags, planned_hours: t.plannedHours, actual_hours: t.actualHours, deferred_date: t.deferredDate || null, deferred_start: t.deferredStart || null, deferred_end: t.deferredEnd || null, notes: t.notes, recurrence: t.recurrence, instance_overrides: t.instanceOverrides }); });
           });
+
           if(projectsToUpsert.length > 0) await supabase.from('projects').upsert(projectsToUpsert);
           if(tasksToUpsert.length > 0) await supabase.from('tasks').upsert(tasksToUpsert);
         } catch (error) { console.error("Error guardando en Supabase:", error); }
@@ -502,7 +634,6 @@
       function setTaskOverride(task, originDate, patch){ normalizeTask(task); const current=task.instanceOverrides[originDate] || {}; task.instanceOverrides[originDate] = { ...current, ...patch }; }
       function cleanupTaskOverride(task, originDate){ const ov=task.instanceOverrides?.[originDate]; if(!ov) return; const meaningful=Object.keys(ov).filter(k=>{ const v=ov[k]; if(Array.isArray(v)) return v.length>0; return !(v===''||v===null||v===undefined||v===false);}); if(!meaningful.length) delete task.instanceOverrides[originDate]; }
       function splitTaskFromOccurrence(project, task, originDate){ const clone=JSON.parse(JSON.stringify(task)); clone.id=uid(); clone.date=originDate; clone.instanceOverrides={}; normalizeTask(clone); const prevDay=formatDateInput(addDays(parseDateInput(originDate),-1)); task.recurrence=normalizeRecurrence(task.recurrence); task.recurrence.endDate=prevDay; project.tasks.push(clone); return clone; }
-      
       function buildTaskOccurrence(task, project, originDate, displayDate, override){
         const status=override?.status || task.status || 'Pendiente';
         const title=override?.title ?? task.title;
@@ -888,11 +1019,10 @@
         else authError.innerText = "Registro exitoso. Ahora puedes entrar.";
       });
 
+      // El cierre de sesión se encarga ahora de resetear la vista y la sesión real
       els.logoutBtn.addEventListener('click', async () => {
-        state = defaultState();
-        render();
-        closeProjectModal();
-        await supabase.auth.signOut();
+        const { error } = await supabase.auth.signOut();
+        if(error) console.error("Error cerrando sesión:", error);
       });
 
       supabase.auth.onAuthStateChange(async (event, session) => {
@@ -902,8 +1032,14 @@
           state = await loadState();
           render();
         } else {
+          // Si no hay sesión (al entrar o al darle a cerrar sesión) se limpia la pantalla
+          state = defaultState();
+          clearCalendar();
           authScreen.style.display = 'flex';
           mainApp.style.display = 'none';
+          emailInput.value = '';
+          passwordInput.value = '';
+          authError.innerText = '';
         }
       });
 
