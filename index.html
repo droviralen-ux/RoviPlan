@@ -30,18 +30,14 @@
 
     * { box-sizing: border-box; }
 
-    /* Ajuste estricto al 100% de la ventana del navegador */
     html, body {
-      margin: 0; 
-      padding: 0;
-      width: 100vw;
-      height: 100vh;
-      overflow: hidden; 
+      margin: 0; padding: 0;
       font-family: 'Inter', system-ui, -apple-system, sans-serif;
       color: var(--text);
       background: var(--bg);
     }
 
+    body { padding: 20px; }
     button, input, select, textarea { font: inherit; }
     button { cursor: pointer; }
 
@@ -59,28 +55,23 @@
     .auth-card input { width: 100%; padding: 12px; border: 1px solid var(--line); border-radius: 8px; }
     .auth-error { color: var(--red); font-size: 13px; text-align: center; min-height: 20px; }
 
-    /* Contenedor principal ajustado */
-    .app { 
-      display: flex; 
-      flex-direction: column; 
-      gap: 16px; 
-      width: 100%; 
-      height: 100%; 
-      padding: 16px; 
-    }
+    .app { max-width: 1600px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
 
     .topbar {
-      background: #ffffff; color: var(--navy); border-radius: var(--radius);
-      padding: 16px 24px; box-shadow: var(--shadow-sm); border: 1px solid var(--line);
-      flex-shrink: 0;
+      background: #ffffff;
+      color: var(--navy);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--line);
     }
     .topbar-row { display: grid; grid-template-columns: 1fr auto; gap: 20px; align-items: center; }
     .title { margin: 0 0 4px 0; font-size: 24px; font-weight: 700; letter-spacing: -0.5px; }
     .subtitle { margin: 0; color: var(--muted); font-size: 14px; }
     .company-input {
-      margin-top: 8px; width: min(400px, 100%);
+      margin-top: 12px; width: min(400px, 100%);
       border: 1px solid var(--line); background: var(--bg); color: var(--text);
-      border-radius: 8px; padding: 8px 14px; outline: none; transition: border 0.2s;
+      border-radius: 8px; padding: 10px 14px; outline: none; transition: border 0.2s;
     }
     .company-input:focus { border-color: var(--blue); }
 
@@ -103,32 +94,20 @@
     .btn-danger { background: #fef2f2; color: var(--red); }
     .btn-danger:hover { background: #fee2e2; }
 
-    .toolbar-secondary { display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
-    
-    /* El grid que se estira y absorbe el espacio restante */
-    .shell { 
-      display: grid; 
-      grid-template-columns: var(--sidebarW) 1fr; 
-      gap: 16px; 
-      flex: 1; 
-      min-height: 0; 
-    }
+    .toolbar-secondary { display: flex; justify-content: space-between; margin-bottom: 4px; align-items: center; }
+    .shell { display: grid; grid-template-columns: var(--sidebarW) 1fr; gap: 24px; align-items: start; }
 
     .sidebar, .calendar-shell {
       background: var(--panel); border: 1px solid var(--line);
-      border-radius: var(--radius); box-shadow: var(--shadow-sm); 
-      display: flex; flex-direction: column; min-height: 0;
+      border-radius: var(--radius); box-shadow: var(--shadow-sm); overflow: hidden;
     }
     .sidebar-head, .calendar-toolbar {
-      padding: 16px 20px; border-bottom: 1px solid var(--line); background: #fafafa; flex-shrink: 0;
+      padding: 16px 20px; border-bottom: 1px solid var(--line); background: #fafafa;
     }
     .sidebar-head h2 { margin: 0; font-size: 16px; font-weight: 700; color: var(--navy); }
-    
-    /* Scrollers internos */
-    .sidebar-body { padding: 20px; display: flex; flex-direction: column; gap: 20px; overflow-y: auto; flex: 1; }
-    .calendar { position: relative; overflow: auto; background: #fff; flex: 1; }
+    .sidebar-body { padding: 20px; display: flex; flex-direction: column; gap: 20px; }
 
-    .card { border: 1px solid var(--line); border-radius: 12px; background: #ffffff; padding: 16px; box-shadow: var(--shadow-sm); flex-shrink: 0; }
+    .card { border: 1px solid var(--line); border-radius: 12px; background: #ffffff; padding: 16px; box-shadow: var(--shadow-sm); }
     .card h3 { margin: 0 0 12px; font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
     .field label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
     input[type="text"], input[type="date"], input[type="time"], input[type="number"], select, textarea {
@@ -146,6 +125,7 @@
     .project-row:hover { border-color: var(--blue); box-shadow: var(--shadow-sm); }
     .dot { width: 12px; height: 12px; border-radius: 50%; }
 
+    .calendar { position: relative; overflow: auto; background: #fff; min-height: 700px; }
     .time-grid { display: grid; min-width: 1200px; }
     .time-grid.week { grid-template-columns: var(--hourW) repeat(7, minmax(160px, 1fr)); }
     .time-grid.day { grid-template-columns: var(--hourW) minmax(500px, 1fr); min-width: 100%; }
@@ -171,8 +151,8 @@
 
     .modal-backdrop { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 50; padding: 20px; }
     .modal-backdrop.show { display: flex; }
-    .modal { width: min(1000px, 100%); max-height: 90vh; overflow: auto; background: #fff; border-radius: var(--radius); box-shadow: var(--shadow-lg); display: flex; flex-direction: column;}
-    .modal-head { padding: 20px 24px; border-bottom: 1px solid var(--line); position: sticky; top: 0; background: #fff; z-index: 10; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;}
+    .modal { width: min(1000px, 100%); max-height: 90vh; overflow: auto; background: #fff; border-radius: var(--radius); box-shadow: var(--shadow-lg); }
+    .modal-head { padding: 20px 24px; border-bottom: 1px solid var(--line); position: sticky; top: 0; background: #fff; z-index: 10; display: flex; justify-content: space-between; align-items: center; }
     .modal-body { padding: 24px; }
     .form-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
     .full { grid-column: 1 / -1; }
@@ -198,7 +178,7 @@
     .month-day-number{font-weight:800;color:#17355e}
     .month-list{display:flex;flex-direction:column;gap:6px}
     .month-chip{border-radius:10px;padding:6px 8px;color:#fff;font-size:11px;font-weight:700;cursor:grab;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-    .legend{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:12px 16px;border-top:1px solid var(--line);background:#fcfeff; flex-shrink: 0;}
+    .legend{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:12px 16px 16px;border-top:1px solid var(--line);background:#fcfeff}
     .chip{display:inline-flex;align-items:center;gap:8px;background:#f4f8fd;border:1px solid var(--line);padding:8px 10px;border-radius:999px;font-size:12px;color:#1c365b}
     .chip-dot{width:12px;height:12px;border-radius:999px;border:1px solid rgba(0,0,0,.08)}
     .modal-title{font-size:20px;font-weight:800;color:#18385f;margin:0}
@@ -224,11 +204,7 @@
     .empty-state{padding:18px;border:1px dashed #c9d8eb;border-radius:16px;background:#f9fbff;color:#5c708b;font-size:14px}
     
     @media (max-width: 1024px) {
-      html, body { height: auto; overflow: auto; min-height: 100vh; }
-      .app { height: auto; }
-      .shell { grid-template-columns: 1fr; display: flex; flex-direction: column; }
-      .sidebar, .calendar-shell { height: auto; flex: none; overflow: visible; }
-      .calendar { min-height: 500px; }
+      .shell { grid-template-columns: 1fr; }
       .form-grid { grid-template-columns: 1fr 1fr; }
       .task-header,.task-header-tight,.task-recurrence-grid,.scope-grid{grid-template-columns:1fr 1fr}
     }
@@ -421,10 +397,11 @@
       const DAY_NAMES = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
       const WEEKDAY_KEYS = ['mon','tue','wed','thu','fri','sat','sun'];
 
-      // TUS CLAVES REALES DE SUPABASE
+      // --- CONFIGURACIÓN SUPABASE ---
       const supabaseUrl = 'https://kublywmnmeripbmfdqxc.supabase.co';
       const supabaseKey = 'sb_publishable_13-EJ5fUP_7UHRuSumgF1g_TKb-c5kY';
       const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+      // ------------------------------------
 
       const els = {
         companyName: document.getElementById('companyName'),
@@ -510,11 +487,43 @@
 
           const stateProjects = dbProjects.map(p => {
             const projectTasks = dbTasks.filter(t => t.project_id === p.id).map(t => ({
-              id: t.id, title: t.title, date: t.base_date, allowOutsideProject: t.allow_outside_project, start: t.start_time, end: t.end_time, status: t.status, priority: t.priority, tags: t.tags || '', plannedHours: Number(t.planned_hours || 0), actualHours: Number(t.actual_hours || 0), deferredDate: t.deferred_date || '', deferredStart: t.deferred_start || '', deferredEnd: t.deferred_end || '', notes: t.notes || '', recurrence: t.recurrence || defaultRecurrence(), instanceOverrides: t.instance_overrides || {}
+              id: t.id,
+              title: t.title,
+              date: t.base_date,
+              allowOutsideProject: t.allow_outside_project,
+              start: t.start_time,
+              end: t.end_time,
+              status: t.status,
+              priority: t.priority,
+              tags: t.tags || '',
+              plannedHours: Number(t.planned_hours || 0),
+              actualHours: Number(t.actual_hours || 0),
+              deferredDate: t.deferred_date || '',
+              deferredStart: t.deferred_start || '',
+              deferredEnd: t.deferred_end || '',
+              notes: t.notes || '',
+              recurrence: t.recurrence || defaultRecurrence(),
+              instanceOverrides: t.instance_overrides || {}
             }));
 
             return {
-              id: p.id, name: p.name, client: p.client || '', date: p.base_date, start: p.start_time, end: p.end_time, color: p.color, notes: p.notes || '', status: p.status, priority: p.priority, billable: p.billable, plannedHours: Number(p.planned_hours || 0), actualHours: Number(p.actual_hours || 0), tags: p.tags || '', recurrence: p.recurrence || defaultRecurrence(), archivedAt: p.archived_at || '', tasks: projectTasks
+              id: p.id,
+              name: p.name,
+              client: p.client || '',
+              date: p.base_date,
+              start: p.start_time,
+              end: p.end_time,
+              color: p.color,
+              notes: p.notes || '',
+              status: p.status,
+              priority: p.priority,
+              billable: p.billable,
+              plannedHours: Number(p.planned_hours || 0),
+              actualHours: Number(p.actual_hours || 0),
+              tags: p.tags || '',
+              recurrence: p.recurrence || defaultRecurrence(),
+              archivedAt: p.archived_at || '',
+              tasks: projectTasks
             };
           });
 
@@ -522,9 +531,14 @@
           
           let filters = { search:'', projectId:'all', status:'all', priority:'all', archive:'active' };
           let companyName = '';
-          try { const localMeta = JSON.parse(localStorage.getItem('planner_meta') || '{}'); if(localMeta.filters) filters = localMeta.filters; if(localMeta.companyName) companyName = localMeta.companyName; } catch(e) {}
+          try {
+             const localMeta = JSON.parse(localStorage.getItem('planner_meta') || '{}');
+             if(localMeta.filters) filters = localMeta.filters;
+             if(localMeta.companyName) companyName = localMeta.companyName;
+          } catch(e) {}
 
           return { companyName, view: 'week', focusDate: formatDateInput(new Date()), filters, projects: stateProjects };
+
         } catch (error) {
           console.log('Error de carga');
           return defaultState();
@@ -533,18 +547,61 @@
 
       async function saveState() {
         localStorage.setItem('planner_meta', JSON.stringify({ filters: state.filters, companyName: state.companyName }));
+
         try {
           const projectsToUpsert = [];
           const tasksToUpsert = [];
 
           state.projects.forEach(p => {
-            projectsToUpsert.push({ id: p.id, name: p.name, client: p.client, base_date: p.date, start_time: p.start, end_time: p.end, color: p.color, notes: p.notes, status: p.status, priority: p.priority, billable: p.billable, planned_hours: p.plannedHours, actual_hours: p.actualHours, tags: p.tags, recurrence: p.recurrence, archived_at: p.archivedAt || null });
-            p.tasks.forEach(t => { tasksToUpsert.push({ id: t.id, project_id: p.id, title: t.title, base_date: t.date, allow_outside_project: t.allowOutsideProject, start_time: t.start, end_time: t.end, status: t.status, priority: t.priority, tags: t.tags, planned_hours: t.plannedHours, actual_hours: t.actualHours, deferred_date: t.deferredDate || null, deferred_start: t.deferredStart || null, deferred_end: t.deferredEnd || null, notes: t.notes, recurrence: t.recurrence, instance_overrides: t.instanceOverrides }); });
+            projectsToUpsert.push({
+              id: p.id,
+              name: p.name,
+              client: p.client,
+              base_date: p.date,
+              start_time: p.start,
+              end_time: p.end,
+              color: p.color,
+              notes: p.notes,
+              status: p.status,
+              priority: p.priority,
+              billable: p.billable,
+              planned_hours: p.plannedHours,
+              actual_hours: p.actualHours,
+              tags: p.tags,
+              recurrence: p.recurrence,
+              archived_at: p.archivedAt || null
+            });
+
+            p.tasks.forEach(t => {
+              tasksToUpsert.push({
+                id: t.id,
+                project_id: p.id,
+                title: t.title,
+                base_date: t.date,
+                allow_outside_project: t.allowOutsideProject,
+                start_time: t.start,
+                end_time: t.end,
+                status: t.status,
+                priority: t.priority,
+                tags: t.tags,
+                planned_hours: t.plannedHours,
+                actual_hours: t.actualHours,
+                deferred_date: t.deferredDate || null,
+                deferred_start: t.deferredStart || null,
+                deferred_end: t.deferredEnd || null,
+                notes: t.notes,
+                recurrence: t.recurrence,
+                instance_overrides: t.instanceOverrides
+              });
+            });
           });
 
           if(projectsToUpsert.length > 0) await supabase.from('projects').upsert(projectsToUpsert);
           if(tasksToUpsert.length > 0) await supabase.from('tasks').upsert(tasksToUpsert);
-        } catch (error) { console.error("Error guardando en Supabase:", error); }
+
+        } catch (error) {
+          console.error("Error guardando en Supabase:", error);
+        }
       }
 
       function snapshotState(){ return JSON.stringify(state); }
@@ -579,26 +636,60 @@
 
       function createProject(baseDate=null){
         const date = baseDate || state.focusDate || formatDateInput(new Date());
-        const project = { id: uid(), name: 'Nuevo proyecto', client: '', date, start: '09:00', end: '10:00', color: '#3b82f6', notes: '', status: 'Activo', priority: 'Media', billable: true, plannedHours: 0, actualHours: 0, tags: '', recurrence: defaultRecurrence(), tasks: [defaultTask(date)] };
-        state.projects.push(project); saveState(); render(); openProjectModal(project.id, date);
+        const project = {
+          id: uid(),
+          name: 'Nuevo proyecto',
+          client: '',
+          date,
+          start: '09:00',
+          end: '10:00',
+          color: '#3b82f6',
+          notes: '',
+          status: 'Activo',
+          priority: 'Media',
+          billable: true,
+          plannedHours: 0,
+          actualHours: 0,
+          tags: '',
+          recurrence: defaultRecurrence(),
+          tasks: [defaultTask(date)]
+        };
+        state.projects.push(project);
+        saveState();
+        render();
+        openProjectModal(project.id, date);
       }
 
       function layoutOverlaps(items){
-        const sorted = [...items].sort((a,b) => { if (a.startMin !== b.startMin) return a.startMin - b.startMin; return b.endMin - a.endMin; });
-        let active = []; let cluster = [];
+        const sorted = [...items].sort((a,b) => {
+          if (a.startMin !== b.startMin) return a.startMin - b.startMin;
+          return b.endMin - a.endMin;
+        });
+        let active = [];
+        let cluster = [];
         function finalizeCluster(clusterItems){
           if (!clusterItems.length) return;
           const colsEnd = [];
-          clusterItems.forEach(item => { let col = 0; while (col < colsEnd.length && colsEnd[col] > item.startMin) col++; item.col = col; colsEnd[col] = item.endMin; });
+          clusterItems.forEach(item => {
+            let col = 0;
+            while (col < colsEnd.length && colsEnd[col] > item.startMin) col++;
+            item.col = col;
+            colsEnd[col] = item.endMin;
+          });
           const totalCols = Math.max(1, colsEnd.length);
           clusterItems.forEach(item => item.totalCols = totalCols);
         }
         sorted.forEach(item => {
           active = active.filter(x => x.endMin > item.startMin);
-          if (active.length === 0 && cluster.length) { finalizeCluster(cluster); cluster = []; }
-          active.push(item); cluster.push(item);
+          if (active.length === 0 && cluster.length) {
+            finalizeCluster(cluster);
+            cluster = [];
+          }
+          active.push(item);
+          cluster.push(item);
         });
-        finalizeCluster(cluster); return items;
+        finalizeCluster(cluster);
+        return items;
       }
 
       function recurrenceOccursOnDate(baseDate, recurrence, dateObj){
@@ -762,10 +853,14 @@
             el.addEventListener('click', (ev)=>{ ev.stopPropagation(); openProjectModal(item.parentProjectId, item.date); });
             el.addEventListener('contextmenu', (ev)=>showContextMenu(ev,item));
             layer.appendChild(el);
-            if(item.type==='task'){ const rh = el.querySelector('.resize-handle'); rh.addEventListener('mousedown', ev => startResize(ev, item)); }
+            if(item.type==='task'){
+              const rh = el.querySelector('.resize-handle');
+              rh.addEventListener('mousedown', ev => startResize(ev, item));
+            }
           });
         });
-        renderNowLine(eventsLayer, dates); attachDragEvents();
+        renderNowLine(eventsLayer, dates);
+        attachDragEvents();
       }
 
       function renderNowLine(eventsLayer, dates){ const now=new Date(); const today=formatDateInput(now); const idx=dates.findIndex(d=>formatDateInput(d)===today); if(idx===-1) return; const mins=now.getHours()*60 + now.getMinutes(); if(mins<DAY_START_MIN || mins>DAY_END_MIN) return; const line=document.createElement('div'); line.className='now-line'; line.style.top=`${((mins-DAY_START_MIN)/60)*SLOT_HEIGHT}px`; line.style.left=`calc(${(100/dates.length)*idx}% + 0px)`; line.style.width=`calc(${100/dates.length}% - 0px)`; eventsLayer.appendChild(line); }
@@ -779,7 +874,8 @@
           const date = cell.dataset.dropDate; const hour = Number(cell.dataset.dropHour); const dayIndex = Number(cell.dataset.dayIndex);
           createDrag = { date, dayIndex, startMin:hour*60, currentMin:(hour+1)*60 };
           showSelectionPreview(dayCount, createDrag.dayIndex, createDrag.startMin, createDrag.currentMin);
-          document.body.style.userSelect='none'; e.preventDefault();
+          document.body.style.userSelect='none';
+          e.preventDefault();
         });
       }
       function showSelectionPreview(dayCount, dayIndex, startMin, endMin){
@@ -796,20 +892,28 @@
         el.addEventListener('dragover', e=>{ e.preventDefault(); el.classList.add('drag-over'); });
         el.addEventListener('dragleave', ()=>el.classList.remove('drag-over'));
         el.addEventListener('drop', e=>{
-          e.preventDefault(); el.classList.remove('drag-over');
-          let payload; try{ payload=JSON.parse(e.dataTransfer.getData('text/plain')); } catch { return; }
-          const dateStr=el.dataset.dropDate; const hour=el.dataset.dropHour ? Number(el.dataset.dropHour) : null;
+          e.preventDefault();
+          el.classList.remove('drag-over');
+          let payload;
+          try{ payload=JSON.parse(e.dataTransfer.getData('text/plain')); } catch { return; }
+          const dateStr=el.dataset.dropDate;
+          const hour=el.dataset.dropHour ? Number(el.dataset.dropHour) : null;
           if(!dateStr) return;
           commitHistory();
           if(payload.type==='project'){
-            const project=getProjectById(payload.sourceId); if(!project) return;
-            project.date=dateStr; if(project.recurrence.type==='none') project.recurrence.endDate='';
+            const project=getProjectById(payload.sourceId);
+            if(!project) return;
+            project.date=dateStr;
+            if(project.recurrence.type==='none') project.recurrence.endDate='';
             if(hour!==null){
               const duration=Math.max(30,timeToMinutes(project.end||'10:00')-timeToMinutes(project.start||'09:00'));
               let start=hour*60; let end=start+duration; [start,end]=clampTimeRange(start,end);
               project.start=minutesToTime(start); project.end=minutesToTime(end);
             }
-            if(state.view==='month'){ const droppedDate = parseDateInput(dateStr); state.focusDate = formatDateInput(new Date(droppedDate.getFullYear(), droppedDate.getMonth(), 1)); }
+            if(state.view==='month'){
+              const droppedDate = parseDateInput(dateStr);
+              state.focusDate = formatDateInput(new Date(droppedDate.getFullYear(), droppedDate.getMonth(), 1));
+            }
           }
           if(payload.type==='task'){
             const project=getProjectById(payload.parentProjectId); if(!project) return;
@@ -817,10 +921,16 @@
             const recurring=normalizeRecurrence(task.recurrence).type!=='none';
             const originDate=payload.originDate || dateStr;
             if(recurring){
-              setTaskOverride(task, originDate, { status:'Aplazada', deferredDate:dateStr, deferredStart:hour!==null ? minutesToTime(hour*60) : (task.start||''), deferredEnd:hour!==null ? minutesToTime(Math.min(DAY_END_MIN, hour*60 + Math.max(30,timeToMinutes(task.end||'10:00')-timeToMinutes(task.start||'09:00')))) : (task.end||'') });
+              setTaskOverride(task, originDate, {
+                status:'Aplazada',
+                deferredDate:dateStr,
+                deferredStart:hour!==null ? minutesToTime(hour*60) : (task.start||''),
+                deferredEnd:hour!==null ? minutesToTime(Math.min(DAY_END_MIN, hour*60 + Math.max(30,timeToMinutes(task.end||'10:00')-timeToMinutes(task.start||'09:00')))) : (task.end||'')
+              });
               cleanupTaskOverride(task,originDate);
             } else {
-              task.date=dateStr; task.allowOutsideProject=true;
+              task.date=dateStr;
+              task.allowOutsideProject=true;
               if(hour!==null){
                 const duration=Math.max(30,timeToMinutes(task.end||'10:00')-timeToMinutes(task.start||'09:00'));
                 let start=hour*60; let end=start+duration; [start,end]=clampTimeRange(start,end);
@@ -832,7 +942,12 @@
         });
       }
 
-      function startResize(e, item){ e.preventDefault(); e.stopPropagation(); resizeDrag = { item, startY:e.clientY, startEnd:timeToMinutes(item.end), minEnd: timeToMinutes(item.start)+30 }; document.body.style.userSelect='none'; }
+      function startResize(e, item){
+        e.preventDefault();
+        e.stopPropagation();
+        resizeDrag = { item, startY:e.clientY, startEnd:timeToMinutes(item.end), minEnd: timeToMinutes(item.start)+30 };
+        document.body.style.userSelect='none';
+      }
 
       document.addEventListener('mousemove', e=>{
         if(createDrag){
@@ -843,7 +958,12 @@
           const dayCount = state.view==='week' ? 7 : 1;
           showSelectionPreview(dayCount, createDrag.dayIndex, createDrag.startMin, createDrag.currentMin);
         }
-        if(resizeDrag){ const deltaY=e.clientY - resizeDrag.startY; const deltaMinutes=Math.round(deltaY / SLOT_HEIGHT * 2) * 30; const end=Math.max(resizeDrag.minEnd, resizeDrag.startEnd + deltaMinutes); resizeDrag.previewEnd = Math.min(DAY_END_MIN, end); }
+        if(resizeDrag){
+          const deltaY=e.clientY - resizeDrag.startY;
+          const deltaMinutes=Math.round(deltaY / SLOT_HEIGHT * 2) * 30;
+          const end=Math.max(resizeDrag.minEnd, resizeDrag.startEnd + deltaMinutes);
+          resizeDrag.previewEnd = Math.min(DAY_END_MIN, end);
+        }
       });
 
       document.addEventListener('mouseup', ()=>{
@@ -853,7 +973,10 @@
           commitHistory();
           const project = state.projects.find(p=>!p.archivedAt) || null;
           if(project){ project.tasks.push({ ...defaultTask(createDrag.date), title:'Nueva tarea', start, end, priority:'Media', allowOutsideProject:true }); }
-          else { const p={ id:uid(), name:'Nuevo proyecto', client:'', date:createDrag.date, start, end, color:'#3b82f6', notes:'', status:'Activo', priority:'Media', billable:true, plannedHours:0, actualHours:0, tags:'', recurrence:defaultRecurrence(), tasks:[{ ...defaultTask(createDrag.date), title:'Nueva tarea', start, end, allowOutsideProject:true }] }; state.projects.push(p); }
+          else {
+            const p={ id:uid(), name:'Nuevo proyecto', client:'', date:createDrag.date, start, end, color:'#3b82f6', notes:'', status:'Activo', priority:'Media', billable:true, plannedHours:0, actualHours:0, tags:'', recurrence:defaultRecurrence(), tasks:[{ ...defaultTask(createDrag.date), title:'Nueva tarea', start, end, allowOutsideProject:true }] };
+            state.projects.push(p);
+          }
           saveState(); render(); removeSelectionPreview(); createDrag=null; document.body.style.userSelect='';
         }
         if(resizeDrag){
@@ -869,7 +992,8 @@
               saveState(); render();
             }
           }
-          resizeDrag = null; document.body.style.userSelect='';
+          resizeDrag = null;
+          document.body.style.userSelect='';
         }
       });
 
@@ -896,26 +1020,26 @@
 
         const bySelector=(selector, handler)=>els.tasksList.querySelectorAll(selector).forEach(el=>{ const evt = el.tagName==='SELECT' ? 'change' : 'input'; el.addEventListener(evt, ()=>handler(el)); });
 
-        bySelector('[data-task-title]', el => { commitHistory(); const task=getBaseTask(el.dataset.taskTitle); const originDate=el.dataset.originDate; applyTaskChange(task, originDate, getScope(task.id), (target,mode)=>{ if(mode==='this') setOccurrencePatch(target,originDate,{ title:el.value }); else target.title=el.value; }); saveState(); render(); renderTasks(project, visibleDate); });
-        bySelector('[data-task-date]', el => { commitHistory(); const task=getBaseTask(el.dataset.taskDate); const originDate=el.dataset.originDate; applyTaskChange(task, originDate, getScope(task.id), (target,mode)=>{ if(mode==='this') setOccurrencePatch(target,originDate,{ deferredDate:el.value, status:'Aplazada' }); else { target.date=el.value; target.allowOutsideProject=true; } }); saveState(); render(); renderTasks(project, visibleDate); });
-        bySelector('[data-task-start]', el => { commitHistory(); const task=getBaseTask(el.dataset.taskStart); const originDate=el.dataset.originDate; applyTaskChange(task, originDate, getScope(task.id), (target,mode)=>{ if(mode==='this') setOccurrencePatch(target,originDate,{ start:el.value }); else target.start=el.value; }); saveState(); render(); renderTasks(project, visibleDate); });
-        bySelector('[data-task-end]', el => { commitHistory(); const task=getBaseTask(el.dataset.taskEnd); const originDate=el.dataset.originDate; applyTaskChange(task, originDate, getScope(task.id), (target,mode)=>{ if(mode==='this') setOccurrencePatch(target,originDate,{ end:el.value }); else target.end=el.value; }); saveState(); render(); renderTasks(project, visibleDate); });
-        bySelector('[data-task-priority]', el => { commitHistory(); const task=getBaseTask(el.dataset.taskPriority); const originDate=el.dataset.originDate; applyTaskChange(task, originDate, getScope(task.id), (target,mode)=>{ if(mode==='this') setOccurrencePatch(target,originDate,{ priority:el.value }); else target.priority=el.value; }); saveState(); render(); renderTasks(project, visibleDate); });
+        bySelector('[data-task-title]', el => { commitHistory(); const task=getBaseTask(el.dataset.taskTitle); const originDate=el.dataset.originDate; applyTaskChange(task, originDate, getScope(task.id), (target,mode)=>{ if(mode==='this') setOccurrencePatch(target,originDate,{ title:el.value }); else target.title=el.value; }); saveState(); render(); });
+        bySelector('[data-task-date]', el => { commitHistory(); const task=getBaseTask(el.dataset.taskDate); const originDate=el.dataset.originDate; applyTaskChange(task, originDate, getScope(task.id), (target,mode)=>{ if(mode==='this') setOccurrencePatch(target,originDate,{ deferredDate:el.value, status:'Aplazada' }); else { target.date=el.value; target.allowOutsideProject=true; } }); saveState(); render(); });
+        bySelector('[data-task-start]', el => { commitHistory(); const task=getBaseTask(el.dataset.taskStart); const originDate=el.dataset.originDate; applyTaskChange(task, originDate, getScope(task.id), (target,mode)=>{ if(mode==='this') setOccurrencePatch(target,originDate,{ start:el.value }); else target.start=el.value; }); saveState(); render(); });
+        bySelector('[data-task-end]', el => { commitHistory(); const task=getBaseTask(el.dataset.taskEnd); const originDate=el.dataset.originDate; applyTaskChange(task, originDate, getScope(task.id), (target,mode)=>{ if(mode==='this') setOccurrencePatch(target,originDate,{ end:el.value }); else target.end=el.value; }); saveState(); render(); });
+        bySelector('[data-task-priority]', el => { commitHistory(); const task=getBaseTask(el.dataset.taskPriority); const originDate=el.dataset.originDate; applyTaskChange(task, originDate, getScope(task.id), (target,mode)=>{ if(mode==='this') setOccurrencePatch(target,originDate,{ priority:el.value }); else target.priority=el.value; }); saveState(); render(); });
         bySelector('[data-task-notes]', el => { const task=getBaseTask(el.dataset.taskNotes); const originDate=el.dataset.originDate; applyTaskChange(task, originDate, getScope(task.id), (target,mode)=>{ if(mode==='this') setOccurrencePatch(target,originDate,{ notes:el.value }); else target.notes=el.value; }); saveState(); });
-        bySelector('[data-task-tags]', el => { commitHistory(); const task=getBaseTask(el.dataset.taskTags); const originDate=el.dataset.originDate; applyTaskChange(task, originDate, getScope(task.id), (target,mode)=>{ if(mode==='this') setOccurrencePatch(target,originDate,{ tags:el.value }); else target.tags=el.value; }); saveState(); render(); renderTasks(project, visibleDate); });
-        bySelector('[data-task-planned]', el => { commitHistory(); const task=getBaseTask(el.dataset.taskPlanned); const originDate=el.dataset.originDate; applyTaskChange(task, originDate, getScope(task.id), (target,mode)=>{ const val=Number(el.value||0); if(mode==='this') setOccurrencePatch(target,originDate,{ plannedHours:val }); else target.plannedHours=val; }); saveState(); render(); renderTasks(project, visibleDate); });
-        bySelector('[data-task-actual]', el => { commitHistory(); const task=getBaseTask(el.dataset.taskActual); const originDate=el.dataset.originDate; applyTaskChange(task, originDate, getScope(task.id), (target,mode)=>{ const val=Number(el.value||0); if(mode==='this') setOccurrencePatch(target,originDate,{ actualHours:val }); else target.actualHours=val; }); saveState(); render(); renderTasks(project, visibleDate); });
+        bySelector('[data-task-tags]', el => { commitHistory(); const task=getBaseTask(el.dataset.taskTags); const originDate=el.dataset.originDate; applyTaskChange(task, originDate, getScope(task.id), (target,mode)=>{ if(mode==='this') setOccurrencePatch(target,originDate,{ tags:el.value }); else target.tags=el.value; }); saveState(); render(); });
+        bySelector('[data-task-planned]', el => { commitHistory(); const task=getBaseTask(el.dataset.taskPlanned); const originDate=el.dataset.originDate; applyTaskChange(task, originDate, getScope(task.id), (target,mode)=>{ const val=Number(el.value||0); if(mode==='this') setOccurrencePatch(target,originDate,{ plannedHours:val }); else target.plannedHours=val; }); saveState(); render(); });
+        bySelector('[data-task-actual]', el => { commitHistory(); const task=getBaseTask(el.dataset.taskActual); const originDate=el.dataset.originDate; applyTaskChange(task, originDate, getScope(task.id), (target,mode)=>{ const val=Number(el.value||0); if(mode==='this') setOccurrencePatch(target,originDate,{ actualHours:val }); else target.actualHours=val; }); saveState(); render(); });
 
-        els.tasksList.querySelectorAll('[data-task-status]').forEach(el=>{ el.addEventListener('change', ()=>{ commitHistory(); const task=getBaseTask(el.dataset.taskStatus); const originDate=el.dataset.originDate; const scope=getScope(task.id); const value=el.value; applyTaskChange(task, originDate, scope, async (target,mode)=>{ if(mode==='this'){ if(value==='Anulada') setOccurrencePatch(target,originDate,{ deleted:true, status:'' }); else if(value==='Completada') setOccurrencePatch(target,originDate,{ status:'Completada', deleted:false }); else if(value==='Aplazada') setOccurrencePatch(target,originDate,{ status:'Aplazada', deleted:false }); else setOccurrencePatch(target,originDate,{ status:'Pendiente', deleted:false, deferredDate:'', deferredStart:'', deferredEnd:'' }); } else { if(value==='Anulada'){ if(mode==='following'){ target.recurrence.endDate = formatDateInput(addDays(parseDateInput(originDate),-1)); } else { project.tasks = project.tasks.filter(x=>x.id!==target.id); await supabase.from('tasks').delete().eq('id', target.id); } } else { target.status=value; if(value!=='Aplazada'){ target.deferredDate=''; target.deferredStart=''; target.deferredEnd=''; } } } }); saveState(); render(); renderTasks(project, visibleDate); }); });
-        els.tasksList.querySelectorAll('[data-task-recurrence-type]').forEach(el=>{ el.addEventListener('change', ()=>{ commitHistory(); const task=getBaseTask(el.dataset.taskRecurrenceType); const originDate=el.dataset.originDate; applyTaskChange(task, originDate, getScope(task.id), target=>{ target.recurrence=normalizeRecurrence(target.recurrence); target.recurrence.type=el.value; }); saveState(); render(); renderTasks(project, visibleDate); }); });
-        els.tasksList.querySelectorAll('[data-task-recurrence-interval]').forEach(el=>{ el.addEventListener('input', ()=>{ commitHistory(); const task=getBaseTask(el.dataset.taskRecurrenceInterval); const originDate=el.dataset.originDate; applyTaskChange(task, originDate, getScope(task.id), target=>{ target.recurrence=normalizeRecurrence(target.recurrence); target.recurrence.interval=Math.max(1,Number(el.value||1)); }); saveState(); render(); renderTasks(project, visibleDate); }); });
-        els.tasksList.querySelectorAll('[data-task-recurrence-unit]').forEach(el=>{ el.addEventListener('change', ()=>{ commitHistory(); const task=getBaseTask(el.dataset.taskRecurrenceUnit); const originDate=el.dataset.originDate; applyTaskChange(task, originDate, getScope(task.id), target=>{ target.recurrence=normalizeRecurrence(target.recurrence); target.recurrence.unit=el.value; }); saveState(); render(); renderTasks(project, visibleDate); }); });
-        els.tasksList.querySelectorAll('[data-task-recurrence-end]').forEach(el=>{ el.addEventListener('change', ()=>{ commitHistory(); const task=getBaseTask(el.dataset.taskRecurrenceEnd); const originDate=el.dataset.originDate; applyTaskChange(task, originDate, getScope(task.id), target=>{ target.recurrence=normalizeRecurrence(target.recurrence); target.recurrence.endDate=el.value||''; }); saveState(); render(); renderTasks(project, visibleDate); }); });
-        els.tasksList.querySelectorAll('[data-task-weekday]').forEach(el=>{ el.addEventListener('change', ()=>{ commitHistory(); const [taskId,weekday]=el.dataset.taskWeekday.split(':'); const task=getBaseTask(taskId); const originDate=visibleDate; applyTaskChange(task, originDate, getScope(task.id), target=>{ target.recurrence=normalizeRecurrence(target.recurrence); if(el.checked){ if(!target.recurrence.weekdays.includes(weekday)) target.recurrence.weekdays.push(weekday); } else target.recurrence.weekdays=target.recurrence.weekdays.filter(w=>w!==weekday); }); saveState(); render(); renderTasks(project, visibleDate); }); });
-        els.tasksList.querySelectorAll('[data-task-deferred-date]').forEach(el=>{ el.addEventListener('input', ()=>{ commitHistory(); const task=getBaseTask(el.dataset.taskDeferredDate); const originDate=el.dataset.originDate; applyTaskChange(task, originDate, getScope(task.id), (target,mode)=>{ if(mode==='this') setOccurrencePatch(target,originDate,{ status:'Aplazada', deferredDate:el.value }); else { target.status='Aplazada'; target.deferredDate=el.value; } }); saveState(); render(); renderTasks(project, visibleDate); }); });
-        els.tasksList.querySelectorAll('[data-task-deferred-start]').forEach(el=>{ el.addEventListener('input', ()=>{ commitHistory(); const task=getBaseTask(el.dataset.taskDeferredStart); const originDate=el.dataset.originDate; applyTaskChange(task, originDate, getScope(task.id), (target,mode)=>{ if(mode==='this') setOccurrencePatch(target,originDate,{ status:'Aplazada', deferredStart:el.value }); else { target.status='Aplazada'; target.deferredStart=el.value; } }); saveState(); render(); renderTasks(project, visibleDate); }); });
-        els.tasksList.querySelectorAll('[data-task-deferred-end]').forEach(el=>{ el.addEventListener('input', ()=>{ commitHistory(); const task=getBaseTask(el.dataset.taskDeferredEnd); const originDate=el.dataset.originDate; applyTaskChange(task, originDate, getScope(task.id), (target,mode)=>{ if(mode==='this') setOccurrencePatch(target,originDate,{ status:'Aplazada', deferredEnd:el.value }); else { target.status='Aplazada'; target.deferredEnd=el.value; } }); saveState(); render(); renderTasks(project, visibleDate); }); });
-        els.tasksList.querySelectorAll('[data-task-delete]').forEach(el=>{ el.addEventListener('click', ()=>{ commitHistory(); const task=getBaseTask(el.dataset.taskDelete); const originDate=el.dataset.originDate; const scope=getScope(task.id); applyTaskChange(task, originDate, scope, async (target,mode)=>{ if(mode==='this') setOccurrencePatch(target,originDate,{ deleted:true, status:'' }); else if(mode==='following'){ target.recurrence=normalizeRecurrence(target.recurrence); target.recurrence.endDate = formatDateInput(addDays(parseDateInput(originDate),-1)); } else { project.tasks = project.tasks.filter(x=>x.id!==target.id); await supabase.from('tasks').delete().eq('id', target.id); } }); saveState(); render(); renderTasks(project, visibleDate); }); });
+        els.tasksList.querySelectorAll('[data-task-status]').forEach(el=>{ el.addEventListener('change', ()=>{ commitHistory(); const task=getBaseTask(el.dataset.taskStatus); const originDate=el.dataset.originDate; const scope=getScope(task.id); const value=el.value; applyTaskChange(task, originDate, scope, async (target,mode)=>{ if(mode==='this'){ if(value==='Anulada') setOccurrencePatch(target,originDate,{ deleted:true, status:'' }); else if(value==='Completada') setOccurrencePatch(target,originDate,{ status:'Completada', deleted:false }); else if(value==='Aplazada') setOccurrencePatch(target,originDate,{ status:'Aplazada', deleted:false }); else setOccurrencePatch(target,originDate,{ status:'Pendiente', deleted:false, deferredDate:'', deferredStart:'', deferredEnd:'' }); } else { if(value==='Anulada'){ if(mode==='following'){ target.recurrence.endDate = formatDateInput(addDays(parseDateInput(originDate),-1)); } else { project.tasks = project.tasks.filter(x=>x.id!==target.id); if(supabaseUrl !== 'TU_URL_DE_SUPABASE') await supabase.from('tasks').delete().eq('id', target.id); } } else { target.status=value; if(value!=='Aplazada'){ target.deferredDate=''; target.deferredStart=''; target.deferredEnd=''; } } } }); saveState(); render(); }); });
+        els.tasksList.querySelectorAll('[data-task-recurrence-type]').forEach(el=>{ el.addEventListener('change', ()=>{ commitHistory(); const task=getBaseTask(el.dataset.taskRecurrenceType); const originDate=el.dataset.originDate; applyTaskChange(task, originDate, getScope(task.id), target=>{ target.recurrence=normalizeRecurrence(target.recurrence); target.recurrence.type=el.value; }); saveState(); render(); }); });
+        els.tasksList.querySelectorAll('[data-task-recurrence-interval]').forEach(el=>{ el.addEventListener('input', ()=>{ commitHistory(); const task=getBaseTask(el.dataset.taskRecurrenceInterval); const originDate=el.dataset.originDate; applyTaskChange(task, originDate, getScope(task.id), target=>{ target.recurrence=normalizeRecurrence(target.recurrence); target.recurrence.interval=Math.max(1,Number(el.value||1)); }); saveState(); render(); }); });
+        els.tasksList.querySelectorAll('[data-task-recurrence-unit]').forEach(el=>{ el.addEventListener('change', ()=>{ commitHistory(); const task=getBaseTask(el.dataset.taskRecurrenceUnit); const originDate=el.dataset.originDate; applyTaskChange(task, originDate, getScope(task.id), target=>{ target.recurrence=normalizeRecurrence(target.recurrence); target.recurrence.unit=el.value; }); saveState(); render(); }); });
+        els.tasksList.querySelectorAll('[data-task-recurrence-end]').forEach(el=>{ el.addEventListener('change', ()=>{ commitHistory(); const task=getBaseTask(el.dataset.taskRecurrenceEnd); const originDate=el.dataset.originDate; applyTaskChange(task, originDate, getScope(task.id), target=>{ target.recurrence=normalizeRecurrence(target.recurrence); target.recurrence.endDate=el.value||''; }); saveState(); render(); }); });
+        els.tasksList.querySelectorAll('[data-task-weekday]').forEach(el=>{ el.addEventListener('change', ()=>{ commitHistory(); const [taskId,weekday]=el.dataset.taskWeekday.split(':'); const task=getBaseTask(taskId); const originDate=visibleDate; applyTaskChange(task, originDate, getScope(task.id), target=>{ target.recurrence=normalizeRecurrence(target.recurrence); if(el.checked){ if(!target.recurrence.weekdays.includes(weekday)) target.recurrence.weekdays.push(weekday); } else target.recurrence.weekdays=target.recurrence.weekdays.filter(w=>w!==weekday); }); saveState(); render(); }); });
+        els.tasksList.querySelectorAll('[data-task-deferred-date]').forEach(el=>{ el.addEventListener('input', ()=>{ commitHistory(); const task=getBaseTask(el.dataset.taskDeferredDate); const originDate=el.dataset.originDate; applyTaskChange(task, originDate, getScope(task.id), (target,mode)=>{ if(mode==='this') setOccurrencePatch(target,originDate,{ status:'Aplazada', deferredDate:el.value }); else { target.status='Aplazada'; target.deferredDate=el.value; } }); saveState(); render(); }); });
+        els.tasksList.querySelectorAll('[data-task-deferred-start]').forEach(el=>{ el.addEventListener('input', ()=>{ commitHistory(); const task=getBaseTask(el.dataset.taskDeferredStart); const originDate=el.dataset.originDate; applyTaskChange(task, originDate, getScope(task.id), (target,mode)=>{ if(mode==='this') setOccurrencePatch(target,originDate,{ status:'Aplazada', deferredStart:el.value }); else { target.status='Aplazada'; target.deferredStart=el.value; } }); saveState(); render(); }); });
+        els.tasksList.querySelectorAll('[data-task-deferred-end]').forEach(el=>{ el.addEventListener('input', ()=>{ commitHistory(); const task=getBaseTask(el.dataset.taskDeferredEnd); const originDate=el.dataset.originDate; applyTaskChange(task, originDate, getScope(task.id), (target,mode)=>{ if(mode==='this') setOccurrencePatch(target,originDate,{ status:'Aplazada', deferredEnd:el.value }); else { target.status='Aplazada'; target.deferredEnd=el.value; } }); saveState(); render(); }); });
+        els.tasksList.querySelectorAll('[data-task-delete]').forEach(el=>{ el.addEventListener('click', ()=>{ commitHistory(); const task=getBaseTask(el.dataset.taskDelete); const originDate=el.dataset.originDate; const scope=getScope(task.id); applyTaskChange(task, originDate, scope, async (target,mode)=>{ if(mode==='this') setOccurrencePatch(target,originDate,{ deleted:true, status:'' }); else if(mode==='following'){ target.recurrence=normalizeRecurrence(target.recurrence); target.recurrence.endDate = formatDateInput(addDays(parseDateInput(originDate),-1)); } else { project.tasks = project.tasks.filter(x=>x.id!==target.id); if(supabaseUrl !== 'TU_URL_DE_SUPABASE') await supabase.from('tasks').delete().eq('id', target.id); } }); saveState(); render(); }); });
         els.tasksList.querySelectorAll('[data-task-calendar]').forEach(el=>{ el.addEventListener('click', ()=>{ const task=getBaseTask(el.dataset.taskCalendar); const originDate=el.dataset.originDate; const occurrence=buildTaskOccurrence(task, project, originDate, visibleDate, getTaskOverride(task,originDate)); addTaskToCalendar(project, occurrence); }); });
       }
 
@@ -925,11 +1049,13 @@
         ev.preventDefault();
         ev.stopPropagation();
         els.contextMenu.innerHTML=`<div class="context-item" data-cm-action="open">Abrir</div>${item.type==='task' ? '<div class="context-item" data-cm-action="complete">Marcar completada</div><div class="context-item" data-cm-action="defer">Aplazar a mañana</div><div class="context-item" data-cm-action="delete">Eliminar</div>' : '<div class="context-item" data-cm-action="duplicate-project">Duplicar proyecto</div>'}`;
-        els.contextMenu.style.left=`${ev.clientX}px`; els.contextMenu.style.top=`${ev.clientY}px`; els.contextMenu.classList.add('show');
+        els.contextMenu.style.left=`${ev.clientX}px`;
+        els.contextMenu.style.top=`${ev.clientY}px`;
+        els.contextMenu.classList.add('show');
         els.contextMenu.querySelectorAll('[data-cm-action]').forEach(el=>{ el.onclick=async ()=>{ const act=el.dataset.cmAction; hideContextMenu(); if(act==='open') openProjectModal(item.parentProjectId, item.date); if(act==='duplicate-project'){ commitHistory(); const project=getProjectById(item.parentProjectId); const clone=JSON.parse(JSON.stringify(project)); clone.id=uid(); clone.name += ' (copia)'; clone.tasks=clone.tasks.map(t=>({ ...t, id:uid() })); state.projects.push(clone); saveState(); render(); }
           if(item.type==='task'){ const project=getProjectById(item.parentProjectId); const task=project?.tasks.find(t=>t.id===item.sourceId); if(!task) return; commitHistory(); if(act==='complete'){ const recurring=normalizeRecurrence(task.recurrence).type!=='none'; if(recurring) setTaskOverride(task, item.originDate || item.date, { status:'Completada' }); else task.status='Completada'; }
             if(act==='defer'){ const tomorrow=formatDateInput(addDays(parseDateInput(item.date),1)); const recurring=normalizeRecurrence(task.recurrence).type!=='none'; if(recurring) setTaskOverride(task, item.originDate || item.date, { status:'Aplazada', deferredDate:tomorrow, deferredStart:task.start, deferredEnd:task.end }); else { task.status='Aplazada'; task.deferredDate=tomorrow; task.deferredStart=task.start; task.deferredEnd=task.end; } }
-            if(act==='delete'){ const recurring=normalizeRecurrence(task.recurrence).type!=='none'; if(recurring) setTaskOverride(task, item.originDate || item.date, { deleted:true }); else { project.tasks = project.tasks.filter(t=>t.id!==task.id); await supabase.from('tasks').delete().eq('id', task.id); } }
+            if(act==='delete'){ const recurring=normalizeRecurrence(task.recurrence).type!=='none'; if(recurring) setTaskOverride(task, item.originDate || item.date, { deleted:true }); else { project.tasks = project.tasks.filter(t=>t.id!==task.id); if(supabaseUrl !== 'TU_URL_DE_SUPABASE') await supabase.from('tasks').delete().eq('id', task.id); } }
             saveState(); render(); }
         }; }); }
       function hideContextMenu(){ els.contextMenu.classList.remove('show'); }
@@ -972,8 +1098,12 @@
           if(confirm('¿Eliminar este proyecto y todas sus tareas?')){ 
             commitHistory(); 
             state.projects = state.projects.filter(p=>p.id!==activeProjectId); 
-            await supabase.from('projects').delete().eq('id', activeProjectId);
-            saveState(); render(); closeProjectModal(); 
+            if(supabaseUrl !== 'TU_URL_DE_SUPABASE') {
+              await supabase.from('projects').delete().eq('id', activeProjectId);
+            }
+            saveState(); 
+            render(); 
+            closeProjectModal(); 
           } 
         });
 
@@ -984,7 +1114,7 @@
           if(e.key==='Escape'){ closeProjectModal(); hideContextMenu(); }
           if(e.key.toLowerCase()==='n' && !meta && !e.target.matches('input,textarea,select')){ e.preventDefault(); commitHistory(); createProject(); }
           if(e.key.toLowerCase()==='t' && !meta && !e.target.matches('input,textarea,select') && activeProjectId){ e.preventDefault(); const p=getProjectById(activeProjectId); if(p){ commitHistory(); p.tasks.push(defaultTask(activeVisibleDate || state.focusDate || p.date)); saveState(); renderTasks(p, activeVisibleDate || state.focusDate || p.date); render(); } }
-          if(e.key==='Delete' && lastFocusedTaskRef && !e.target.matches('input,textarea,select')){ const project=getProjectById(lastFocusedTaskRef.projectId); const task=project?.tasks.find(t=>t.id===lastFocusedTaskRef.taskId); if(task){ commitHistory(); const recurring=normalizeRecurrence(task.recurrence).type!=='none'; if(recurring) setTaskOverride(task, lastFocusedTaskRef.originDate, { deleted:true }); else { project.tasks=project.tasks.filter(t=>t.id!==task.id); await supabase.from('tasks').delete().eq('id', task.id); } saveState(); render(); renderTasks(project, lastFocusedTaskRef.originDate); } }
+          if(e.key==='Delete' && lastFocusedTaskRef && !e.target.matches('input,textarea,select')){ const project=getProjectById(lastFocusedTaskRef.projectId); const task=project?.tasks.find(t=>t.id===lastFocusedTaskRef.taskId); if(task){ commitHistory(); const recurring=normalizeRecurrence(task.recurrence).type!=='none'; if(recurring) setTaskOverride(task, lastFocusedTaskRef.originDate, { deleted:true }); else { project.tasks=project.tasks.filter(t=>t.id!==task.id); if(supabaseUrl !== 'TU_URL_DE_SUPABASE') await supabase.from('tasks').delete().eq('id', task.id); } saveState(); render(); } }
         });
       }
 
@@ -999,6 +1129,7 @@
       attachGlobalEvents();
       runSelfTests();
       
+      // LÓGICA DE AUTENTICACIÓN
       const authScreen = document.getElementById('authScreen');
       const mainApp = document.getElementById('mainApp');
       const emailInput = document.getElementById('emailInput');
@@ -1006,6 +1137,7 @@
       const authError = document.getElementById('authError');
 
       document.getElementById('loginBtn').addEventListener('click', async () => {
+        if(supabaseUrl === 'TU_URL_DE_SUPABASE') { authError.innerText = "Faltan las claves de Supabase"; return; }
         authError.innerText = "Cargando...";
         const { error } = await supabase.auth.signInWithPassword({ email: emailInput.value, password: passwordInput.value });
         if(error) authError.innerText = "Error: " + error.message;
@@ -1013,18 +1145,18 @@
       });
 
       document.getElementById('signupBtn').addEventListener('click', async () => {
+        if(supabaseUrl === 'TU_URL_DE_SUPABASE') { authError.innerText = "Faltan las claves de Supabase"; return; }
         authError.innerText = "Registrando...";
         const { error } = await supabase.auth.signUp({ email: emailInput.value, password: passwordInput.value });
         if(error) authError.innerText = "Error: " + error.message;
         else authError.innerText = "Registro exitoso. Ahora puedes entrar.";
       });
 
-      // El cierre de sesión se encarga ahora de resetear la vista y la sesión real
       els.logoutBtn.addEventListener('click', async () => {
-        const { error } = await supabase.auth.signOut();
-        if(error) console.error("Error cerrando sesión:", error);
+        await supabase.auth.signOut();
       });
 
+      // ARRANQUE DE LA APP
       supabase.auth.onAuthStateChange(async (event, session) => {
         if (session) {
           authScreen.style.display = 'none';
@@ -1032,14 +1164,8 @@
           state = await loadState();
           render();
         } else {
-          // Si no hay sesión (al entrar o al darle a cerrar sesión) se limpia la pantalla
-          state = defaultState();
-          clearCalendar();
           authScreen.style.display = 'flex';
           mainApp.style.display = 'none';
-          emailInput.value = '';
-          passwordInput.value = '';
-          authError.innerText = '';
         }
       });
 
