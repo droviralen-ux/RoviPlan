@@ -30,14 +30,17 @@
 
     * { box-sizing: border-box; }
 
+    /* Ajuste para ocupar toda la pantalla */
     html, body {
       margin: 0; padding: 0;
       font-family: 'Inter', system-ui, -apple-system, sans-serif;
       color: var(--text);
       background: var(--bg);
+      height: 100vh;
+      overflow: hidden; /* Evita el scroll en la página principal */
     }
 
-    body { padding: 20px; }
+    body { padding: 16px; }
     button, input, select, textarea { font: inherit; }
     button { cursor: pointer; }
 
@@ -55,15 +58,17 @@
     .auth-card input { width: 100%; padding: 12px; border: 1px solid var(--line); border-radius: 8px; }
     .auth-error { color: var(--red); font-size: 13px; text-align: center; min-height: 20px; }
 
-    .app { max-width: 1600px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+    /* Aplicación a pantalla completa */
+    .app { height: 100%; width: 100%; display: flex; flex-direction: column; gap: 16px; }
 
     .topbar {
       background: #ffffff;
       color: var(--navy);
       border-radius: var(--radius);
-      padding: 24px;
+      padding: 20px 24px;
       box-shadow: var(--shadow-sm);
       border: 1px solid var(--line);
+      flex-shrink: 0;
     }
     .topbar-row { display: grid; grid-template-columns: 1fr auto; gap: 20px; align-items: center; }
     .title { margin: 0 0 4px 0; font-size: 24px; font-weight: 700; letter-spacing: -0.5px; }
@@ -94,20 +99,26 @@
     .btn-danger { background: #fef2f2; color: var(--red); }
     .btn-danger:hover { background: #fee2e2; }
 
-    .toolbar-secondary { display: flex; justify-content: space-between; margin-bottom: 4px; align-items: center; }
-    .shell { display: grid; grid-template-columns: var(--sidebarW) 1fr; gap: 24px; align-items: start; }
+    .toolbar-secondary { display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+    
+    /* El cuerpo principal que se estira */
+    .shell { display: grid; grid-template-columns: var(--sidebarW) 1fr; gap: 16px; flex: 1; min-height: 0; }
 
     .sidebar, .calendar-shell {
       background: var(--panel); border: 1px solid var(--line);
-      border-radius: var(--radius); box-shadow: var(--shadow-sm); overflow: hidden;
+      border-radius: var(--radius); box-shadow: var(--shadow-sm); 
+      display: flex; flex-direction: column; height: 100%; overflow: hidden;
     }
     .sidebar-head, .calendar-toolbar {
-      padding: 16px 20px; border-bottom: 1px solid var(--line); background: #fafafa;
+      padding: 16px 20px; border-bottom: 1px solid var(--line); background: #fafafa; flex-shrink: 0;
     }
     .sidebar-head h2 { margin: 0; font-size: 16px; font-weight: 700; color: var(--navy); }
-    .sidebar-body { padding: 20px; display: flex; flex-direction: column; gap: 20px; }
+    
+    /* Barras de desplazamiento internas */
+    .sidebar-body { padding: 20px; display: flex; flex-direction: column; gap: 20px; flex: 1; overflow-y: auto; }
+    .calendar { position: relative; overflow: auto; background: #fff; flex: 1; min-height: 0; }
 
-    .card { border: 1px solid var(--line); border-radius: 12px; background: #ffffff; padding: 16px; box-shadow: var(--shadow-sm); }
+    .card { border: 1px solid var(--line); border-radius: 12px; background: #ffffff; padding: 16px; box-shadow: var(--shadow-sm); flex-shrink: 0; }
     .card h3 { margin: 0 0 12px; font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
     .field label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
     input[type="text"], input[type="date"], input[type="time"], input[type="number"], select, textarea {
@@ -125,7 +136,6 @@
     .project-row:hover { border-color: var(--blue); box-shadow: var(--shadow-sm); }
     .dot { width: 12px; height: 12px; border-radius: 50%; }
 
-    .calendar { position: relative; overflow: auto; background: #fff; min-height: 700px; }
     .time-grid { display: grid; min-width: 1200px; }
     .time-grid.week { grid-template-columns: var(--hourW) repeat(7, minmax(160px, 1fr)); }
     .time-grid.day { grid-template-columns: var(--hourW) minmax(500px, 1fr); min-width: 100%; }
@@ -178,7 +188,7 @@
     .month-day-number{font-weight:800;color:#17355e}
     .month-list{display:flex;flex-direction:column;gap:6px}
     .month-chip{border-radius:10px;padding:6px 8px;color:#fff;font-size:11px;font-weight:700;cursor:grab;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-    .legend{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:12px 16px 16px;border-top:1px solid var(--line);background:#fcfeff}
+    .legend{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:12px 16px;border-top:1px solid var(--line);background:#fcfeff; flex-shrink: 0;}
     .chip{display:inline-flex;align-items:center;gap:8px;background:#f4f8fd;border:1px solid var(--line);padding:8px 10px;border-radius:999px;font-size:12px;color:#1c365b}
     .chip-dot{width:12px;height:12px;border-radius:999px;border:1px solid rgba(0,0,0,.08)}
     .modal-title{font-size:20px;font-weight:800;color:#18385f;margin:0}
@@ -203,8 +213,13 @@
     .note-bar{margin-top:12px;background:#eff6ff;border:1px solid #bfdbfe;color:#1e3a5f;padding:10px 12px;border-radius:12px;font-size:13px}
     .empty-state{padding:18px;border:1px dashed #c9d8eb;border-radius:16px;background:#f9fbff;color:#5c708b;font-size:14px}
     
+    /* Adaptación móvil */
     @media (max-width: 1024px) {
-      .shell { grid-template-columns: 1fr; }
+      html, body { height: auto; overflow: auto; min-height: 100vh; }
+      .app { height: auto; }
+      .shell { grid-template-columns: 1fr; display: flex; flex-direction: column; }
+      .sidebar, .calendar-shell { height: auto; flex: none; overflow: visible; }
+      .calendar { min-height: 500px; }
       .form-grid { grid-template-columns: 1fr 1fr; }
       .task-header,.task-header-tight,.task-recurrence-grid,.scope-grid{grid-template-columns:1fr 1fr}
     }
@@ -1030,7 +1045,7 @@
         bySelector('[data-task-planned]', el => { commitHistory(); const task=getBaseTask(el.dataset.taskPlanned); const originDate=el.dataset.originDate; applyTaskChange(task, originDate, getScope(task.id), (target,mode)=>{ const val=Number(el.value||0); if(mode==='this') setOccurrencePatch(target,originDate,{ plannedHours:val }); else target.plannedHours=val; }); saveState(); render(); });
         bySelector('[data-task-actual]', el => { commitHistory(); const task=getBaseTask(el.dataset.taskActual); const originDate=el.dataset.originDate; applyTaskChange(task, originDate, getScope(task.id), (target,mode)=>{ const val=Number(el.value||0); if(mode==='this') setOccurrencePatch(target,originDate,{ actualHours:val }); else target.actualHours=val; }); saveState(); render(); });
 
-        els.tasksList.querySelectorAll('[data-task-status]').forEach(el=>{ el.addEventListener('change', ()=>{ commitHistory(); const task=getBaseTask(el.dataset.taskStatus); const originDate=el.dataset.originDate; const scope=getScope(task.id); const value=el.value; applyTaskChange(task, originDate, scope, async (target,mode)=>{ if(mode==='this'){ if(value==='Anulada') setOccurrencePatch(target,originDate,{ deleted:true, status:'' }); else if(value==='Completada') setOccurrencePatch(target,originDate,{ status:'Completada', deleted:false }); else if(value==='Aplazada') setOccurrencePatch(target,originDate,{ status:'Aplazada', deleted:false }); else setOccurrencePatch(target,originDate,{ status:'Pendiente', deleted:false, deferredDate:'', deferredStart:'', deferredEnd:'' }); } else { if(value==='Anulada'){ if(mode==='following'){ target.recurrence.endDate = formatDateInput(addDays(parseDateInput(originDate),-1)); } else { project.tasks = project.tasks.filter(x=>x.id!==target.id); if(supabaseUrl !== 'TU_URL_DE_SUPABASE') await supabase.from('tasks').delete().eq('id', target.id); } } else { target.status=value; if(value!=='Aplazada'){ target.deferredDate=''; target.deferredStart=''; target.deferredEnd=''; } } } }); saveState(); render(); }); });
+        els.tasksList.querySelectorAll('[data-task-status]').forEach(el=>{ el.addEventListener('change', ()=>{ commitHistory(); const task=getBaseTask(el.dataset.taskStatus); const originDate=el.dataset.originDate; const scope=getScope(task.id); const value=el.value; applyTaskChange(task, originDate, scope, async (target,mode)=>{ if(mode==='this'){ if(value==='Anulada') setOccurrencePatch(target,originDate,{ deleted:true, status:'' }); else if(value==='Completada') setOccurrencePatch(target,originDate,{ status:'Completada', deleted:false }); else if(value==='Aplazada') setOccurrencePatch(target,originDate,{ status:'Aplazada', deleted:false }); else setOccurrencePatch(target,originDate,{ status:'Pendiente', deleted:false, deferredDate:'', deferredStart:'', deferredEnd:'' }); } else { if(value==='Anulada'){ if(mode==='following'){ target.recurrence.endDate = formatDateInput(addDays(parseDateInput(originDate),-1)); } else { project.tasks = project.tasks.filter(x=>x.id!==target.id); await supabase.from('tasks').delete().eq('id', target.id); } } else { target.status=value; if(value!=='Aplazada'){ target.deferredDate=''; target.deferredStart=''; target.deferredEnd=''; } } } }); saveState(); render(); }); });
         els.tasksList.querySelectorAll('[data-task-recurrence-type]').forEach(el=>{ el.addEventListener('change', ()=>{ commitHistory(); const task=getBaseTask(el.dataset.taskRecurrenceType); const originDate=el.dataset.originDate; applyTaskChange(task, originDate, getScope(task.id), target=>{ target.recurrence=normalizeRecurrence(target.recurrence); target.recurrence.type=el.value; }); saveState(); render(); }); });
         els.tasksList.querySelectorAll('[data-task-recurrence-interval]').forEach(el=>{ el.addEventListener('input', ()=>{ commitHistory(); const task=getBaseTask(el.dataset.taskRecurrenceInterval); const originDate=el.dataset.originDate; applyTaskChange(task, originDate, getScope(task.id), target=>{ target.recurrence=normalizeRecurrence(target.recurrence); target.recurrence.interval=Math.max(1,Number(el.value||1)); }); saveState(); render(); }); });
         els.tasksList.querySelectorAll('[data-task-recurrence-unit]').forEach(el=>{ el.addEventListener('change', ()=>{ commitHistory(); const task=getBaseTask(el.dataset.taskRecurrenceUnit); const originDate=el.dataset.originDate; applyTaskChange(task, originDate, getScope(task.id), target=>{ target.recurrence=normalizeRecurrence(target.recurrence); target.recurrence.unit=el.value; }); saveState(); render(); }); });
@@ -1039,7 +1054,7 @@
         els.tasksList.querySelectorAll('[data-task-deferred-date]').forEach(el=>{ el.addEventListener('input', ()=>{ commitHistory(); const task=getBaseTask(el.dataset.taskDeferredDate); const originDate=el.dataset.originDate; applyTaskChange(task, originDate, getScope(task.id), (target,mode)=>{ if(mode==='this') setOccurrencePatch(target,originDate,{ status:'Aplazada', deferredDate:el.value }); else { target.status='Aplazada'; target.deferredDate=el.value; } }); saveState(); render(); }); });
         els.tasksList.querySelectorAll('[data-task-deferred-start]').forEach(el=>{ el.addEventListener('input', ()=>{ commitHistory(); const task=getBaseTask(el.dataset.taskDeferredStart); const originDate=el.dataset.originDate; applyTaskChange(task, originDate, getScope(task.id), (target,mode)=>{ if(mode==='this') setOccurrencePatch(target,originDate,{ status:'Aplazada', deferredStart:el.value }); else { target.status='Aplazada'; target.deferredStart=el.value; } }); saveState(); render(); }); });
         els.tasksList.querySelectorAll('[data-task-deferred-end]').forEach(el=>{ el.addEventListener('input', ()=>{ commitHistory(); const task=getBaseTask(el.dataset.taskDeferredEnd); const originDate=el.dataset.originDate; applyTaskChange(task, originDate, getScope(task.id), (target,mode)=>{ if(mode==='this') setOccurrencePatch(target,originDate,{ status:'Aplazada', deferredEnd:el.value }); else { target.status='Aplazada'; target.deferredEnd=el.value; } }); saveState(); render(); }); });
-        els.tasksList.querySelectorAll('[data-task-delete]').forEach(el=>{ el.addEventListener('click', ()=>{ commitHistory(); const task=getBaseTask(el.dataset.taskDelete); const originDate=el.dataset.originDate; const scope=getScope(task.id); applyTaskChange(task, originDate, scope, async (target,mode)=>{ if(mode==='this') setOccurrencePatch(target,originDate,{ deleted:true, status:'' }); else if(mode==='following'){ target.recurrence=normalizeRecurrence(target.recurrence); target.recurrence.endDate = formatDateInput(addDays(parseDateInput(originDate),-1)); } else { project.tasks = project.tasks.filter(x=>x.id!==target.id); if(supabaseUrl !== 'TU_URL_DE_SUPABASE') await supabase.from('tasks').delete().eq('id', target.id); } }); saveState(); render(); }); });
+        els.tasksList.querySelectorAll('[data-task-delete]').forEach(el=>{ el.addEventListener('click', ()=>{ commitHistory(); const task=getBaseTask(el.dataset.taskDelete); const originDate=el.dataset.originDate; const scope=getScope(task.id); applyTaskChange(task, originDate, scope, async (target,mode)=>{ if(mode==='this') setOccurrencePatch(target,originDate,{ deleted:true, status:'' }); else if(mode==='following'){ target.recurrence=normalizeRecurrence(target.recurrence); target.recurrence.endDate = formatDateInput(addDays(parseDateInput(originDate),-1)); } else { project.tasks = project.tasks.filter(x=>x.id!==target.id); await supabase.from('tasks').delete().eq('id', target.id); } }); saveState(); render(); }); });
         els.tasksList.querySelectorAll('[data-task-calendar]').forEach(el=>{ el.addEventListener('click', ()=>{ const task=getBaseTask(el.dataset.taskCalendar); const originDate=el.dataset.originDate; const occurrence=buildTaskOccurrence(task, project, originDate, visibleDate, getTaskOverride(task,originDate)); addTaskToCalendar(project, occurrence); }); });
       }
 
@@ -1055,7 +1070,7 @@
         els.contextMenu.querySelectorAll('[data-cm-action]').forEach(el=>{ el.onclick=async ()=>{ const act=el.dataset.cmAction; hideContextMenu(); if(act==='open') openProjectModal(item.parentProjectId, item.date); if(act==='duplicate-project'){ commitHistory(); const project=getProjectById(item.parentProjectId); const clone=JSON.parse(JSON.stringify(project)); clone.id=uid(); clone.name += ' (copia)'; clone.tasks=clone.tasks.map(t=>({ ...t, id:uid() })); state.projects.push(clone); saveState(); render(); }
           if(item.type==='task'){ const project=getProjectById(item.parentProjectId); const task=project?.tasks.find(t=>t.id===item.sourceId); if(!task) return; commitHistory(); if(act==='complete'){ const recurring=normalizeRecurrence(task.recurrence).type!=='none'; if(recurring) setTaskOverride(task, item.originDate || item.date, { status:'Completada' }); else task.status='Completada'; }
             if(act==='defer'){ const tomorrow=formatDateInput(addDays(parseDateInput(item.date),1)); const recurring=normalizeRecurrence(task.recurrence).type!=='none'; if(recurring) setTaskOverride(task, item.originDate || item.date, { status:'Aplazada', deferredDate:tomorrow, deferredStart:task.start, deferredEnd:task.end }); else { task.status='Aplazada'; task.deferredDate=tomorrow; task.deferredStart=task.start; task.deferredEnd=task.end; } }
-            if(act==='delete'){ const recurring=normalizeRecurrence(task.recurrence).type!=='none'; if(recurring) setTaskOverride(task, item.originDate || item.date, { deleted:true }); else { project.tasks = project.tasks.filter(t=>t.id!==task.id); if(supabaseUrl !== 'TU_URL_DE_SUPABASE') await supabase.from('tasks').delete().eq('id', task.id); } }
+            if(act==='delete'){ const recurring=normalizeRecurrence(task.recurrence).type!=='none'; if(recurring) setTaskOverride(task, item.originDate || item.date, { deleted:true }); else { project.tasks = project.tasks.filter(t=>t.id!==task.id); await supabase.from('tasks').delete().eq('id', task.id); }
             saveState(); render(); }
         }; }); }
       function hideContextMenu(){ els.contextMenu.classList.remove('show'); }
@@ -1098,9 +1113,7 @@
           if(confirm('¿Eliminar este proyecto y todas sus tareas?')){ 
             commitHistory(); 
             state.projects = state.projects.filter(p=>p.id!==activeProjectId); 
-            if(supabaseUrl !== 'TU_URL_DE_SUPABASE') {
-              await supabase.from('projects').delete().eq('id', activeProjectId);
-            }
+            await supabase.from('projects').delete().eq('id', activeProjectId);
             saveState(); 
             render(); 
             closeProjectModal(); 
@@ -1114,7 +1127,7 @@
           if(e.key==='Escape'){ closeProjectModal(); hideContextMenu(); }
           if(e.key.toLowerCase()==='n' && !meta && !e.target.matches('input,textarea,select')){ e.preventDefault(); commitHistory(); createProject(); }
           if(e.key.toLowerCase()==='t' && !meta && !e.target.matches('input,textarea,select') && activeProjectId){ e.preventDefault(); const p=getProjectById(activeProjectId); if(p){ commitHistory(); p.tasks.push(defaultTask(activeVisibleDate || state.focusDate || p.date)); saveState(); renderTasks(p, activeVisibleDate || state.focusDate || p.date); render(); } }
-          if(e.key==='Delete' && lastFocusedTaskRef && !e.target.matches('input,textarea,select')){ const project=getProjectById(lastFocusedTaskRef.projectId); const task=project?.tasks.find(t=>t.id===lastFocusedTaskRef.taskId); if(task){ commitHistory(); const recurring=normalizeRecurrence(task.recurrence).type!=='none'; if(recurring) setTaskOverride(task, lastFocusedTaskRef.originDate, { deleted:true }); else { project.tasks=project.tasks.filter(t=>t.id!==task.id); if(supabaseUrl !== 'TU_URL_DE_SUPABASE') await supabase.from('tasks').delete().eq('id', task.id); } saveState(); render(); } }
+          if(e.key==='Delete' && lastFocusedTaskRef && !e.target.matches('input,textarea,select')){ const project=getProjectById(lastFocusedTaskRef.projectId); const task=project?.tasks.find(t=>t.id===lastFocusedTaskRef.taskId); if(task){ commitHistory(); const recurring=normalizeRecurrence(task.recurrence).type!=='none'; if(recurring) setTaskOverride(task, lastFocusedTaskRef.originDate, { deleted:true }); else { project.tasks=project.tasks.filter(t=>t.id!==task.id); await supabase.from('tasks').delete().eq('id', task.id); } saveState(); render(); } }
         });
       }
 
@@ -1137,7 +1150,6 @@
       const authError = document.getElementById('authError');
 
       document.getElementById('loginBtn').addEventListener('click', async () => {
-        if(supabaseUrl === 'TU_URL_DE_SUPABASE') { authError.innerText = "Faltan las claves de Supabase"; return; }
         authError.innerText = "Cargando...";
         const { error } = await supabase.auth.signInWithPassword({ email: emailInput.value, password: passwordInput.value });
         if(error) authError.innerText = "Error: " + error.message;
@@ -1145,7 +1157,6 @@
       });
 
       document.getElementById('signupBtn').addEventListener('click', async () => {
-        if(supabaseUrl === 'TU_URL_DE_SUPABASE') { authError.innerText = "Faltan las claves de Supabase"; return; }
         authError.innerText = "Registrando...";
         const { error } = await supabase.auth.signUp({ email: emailInput.value, password: passwordInput.value });
         if(error) authError.innerText = "Error: " + error.message;
