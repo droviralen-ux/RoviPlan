@@ -243,6 +243,10 @@
           <button class="btn btn-white" id="addProjectBtn">+ Nuevo proyecto</button>
           <button class="btn btn-ghost" id="undoBtn">Deshacer</button>
           <button class="btn btn-ghost" id="redoBtn">Rehacer</button>
+          <button class="btn btn-ghost" id="exportBtn">Exportar JSON</button>
+          <button class="btn btn-ghost" id="importBtn">Importar JSON</button>
+          <input id="importFileInput" type="file" accept="application/json" class="hidden" />
+          <button class="btn btn-ghost" id="resetBtn">Restablecer</button>
           <button class="btn btn-danger" id="logoutBtn">Cerrar sesión</button>
         </div>
       </div>
@@ -410,15 +414,14 @@
         addProjectBtn: document.getElementById('addProjectBtn'),
         undoBtn: document.getElementById('undoBtn'),
         redoBtn: document.getElementById('redoBtn'),
-        exportBtn: document.getElementById('exportBtn'),                
-        importBtn: document.getElementById('importBtn'),                 
-        importFileInput: document.getElementById('importFileInput'),     
-        resetBtn: document.getElementById('resetBtn'),                  
+        exportBtn: document.getElementById('exportBtn'),
+        importBtn: document.getElementById('importBtn'),
+        importFileInput: document.getElementById('importFileInput'),
+        resetBtn: document.getElementById('resetBtn'),
         logoutBtn: document.getElementById('logoutBtn'),
         viewButtons: [...document.querySelectorAll('[data-view]')],
         searchInput: document.getElementById('searchInput'),
         projectFilterSelect: document.getElementById('projectFilterSelect'),
-        // ... el resto de la lista sigue igual
         statusFilterSelect: document.getElementById('statusFilterSelect'),
         priorityFilterSelect: document.getElementById('priorityFilterSelect'),
         archiveFilterSelect: document.getElementById('archiveFilterSelect'),
@@ -476,8 +479,6 @@
 
       async function loadState() {
         try {
-          if(supabaseUrl === 'TU_URL_DE_SUPABASE') throw new Error("Supabase no configurado");
-
           const { data: dbProjects, error: projError } = await supabase.from('projects').select('*');
           if (projError) throw projError;
 
@@ -539,7 +540,7 @@
           return { companyName, view: 'week', focusDate: formatDateInput(new Date()), filters, projects: stateProjects };
 
         } catch (error) {
-          console.log('Error o sin sesión');
+          console.log('Error de carga');
           return defaultState();
         }
       }
@@ -548,8 +549,6 @@
         localStorage.setItem('planner_meta', JSON.stringify({ filters: state.filters, companyName: state.companyName }));
 
         try {
-          if(supabaseUrl === 'TU_URL_DE_SUPABASE') return;
-
           const projectsToUpsert = [];
           const tasksToUpsert = [];
 
