@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>RoviPlanner</title>
+  <title>Planner Pro V2</title>
   <style>
     :root {
       --bg: #f3f6f9;
@@ -40,6 +40,20 @@
     body { padding: 20px; }
     button, input, select, textarea { font: inherit; }
     button { cursor: pointer; }
+
+    /* Pantalla de Autenticación */
+    #authScreen {
+      position: fixed; inset: 0; background: var(--bg); z-index: 9999;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+    }
+    .auth-card {
+      background: #fff; padding: 30px; border-radius: var(--radius);
+      box-shadow: var(--shadow-lg); width: 100%; max-width: 360px;
+      display: flex; flex-direction: column; gap: 16px;
+    }
+    .auth-card h2 { margin: 0; color: var(--navy); text-align: center; }
+    .auth-card input { width: 100%; padding: 12px; border: 1px solid var(--line); border-radius: 8px; }
+    .auth-error { color: var(--red); font-size: 13px; text-align: center; min-height: 20px; }
 
     .app { max-width: 1600px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
 
@@ -202,25 +216,34 @@
   </style>
 </head>
 <body>
-  <div class="app">
+
+  <div id="authScreen">
+    <div class="auth-card">
+      <h2>Planner Pro</h2>
+      <div id="authError" class="auth-error"></div>
+      <input type="email" id="emailInput" placeholder="Correo electrónico" />
+      <input type="password" id="passwordInput" placeholder="Contraseña" />
+      <button class="btn btn-blue" style="width: 100%" id="loginBtn">Iniciar Sesión</button>
+      <button class="btn btn-white" style="width: 100%" id="signupBtn">Crear Cuenta Nueva</button>
+    </div>
+  </div>
+
+  <div class="app" style="display:none" id="mainApp">
     <header class="topbar">
       <div class="topbar-row">
         <div>
-          <h1 class="title">RoviPlanner</h1>
-          <p class="subtitle">El Planificador carcaixentí</p>
-          <input id="companyName" class="company-input" type="text" placeholder="Nombre de la empresa" />
+          <h1 class="title">Planner Pro V2</h1>
+          <p class="subtitle">Versión multiusuario conectada a Supabase</p>
+          <input id="companyName" class="company-input" type="text" placeholder="Nombre de la empresa o usuario" />
         </div>
         <div class="actions">
           <button class="btn btn-white" id="todayBtn">Hoy</button>
-          <button class="btn btn-ghost" id="prevBtn">← Anterior</button>
-          <button class="btn btn-ghost" id="nextBtn">Siguiente →</button>
+          <button class="btn btn-ghost" id="prevBtn">←</button>
+          <button class="btn btn-ghost" id="nextBtn">→</button>
           <button class="btn btn-white" id="addProjectBtn">+ Nuevo proyecto</button>
           <button class="btn btn-ghost" id="undoBtn">Deshacer</button>
           <button class="btn btn-ghost" id="redoBtn">Rehacer</button>
-          <button class="btn btn-ghost" id="exportBtn">Exportar JSON</button>
-          <button class="btn btn-ghost" id="importBtn">Importar JSON</button>
-          <input id="importFileInput" type="file" accept="application/json" class="hidden" />
-          <button class="btn btn-ghost" id="resetBtn">Restablecer</button>
+          <button class="btn btn-danger" id="logoutBtn">Cerrar sesión</button>
         </div>
       </div>
     </header>
@@ -371,7 +394,6 @@
       const WEEKDAY_KEYS = ['mon','tue','wed','thu','fri','sat','sun'];
 
       // --- CONFIGURACIÓN SUPABASE ---
-      // Reemplaza esto con los datos de tu proyecto
       const supabaseUrl = 'https://kublywmnmeripbmfdqxc.supabase.co';
       const supabaseKey = 'sb_publishable_13-EJ5fUP_7UHRuSumgF1g_TKb-c5kY';
       const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
@@ -388,10 +410,7 @@
         addProjectBtn: document.getElementById('addProjectBtn'),
         undoBtn: document.getElementById('undoBtn'),
         redoBtn: document.getElementById('redoBtn'),
-        exportBtn: document.getElementById('exportBtn'),
-        importBtn: document.getElementById('importBtn'),
-        importFileInput: document.getElementById('importFileInput'),
-        resetBtn: document.getElementById('resetBtn'),
+        logoutBtn: document.getElementById('logoutBtn'),
         viewButtons: [...document.querySelectorAll('[data-view]')],
         searchInput: document.getElementById('searchInput'),
         projectFilterSelect: document.getElementById('projectFilterSelect'),
@@ -515,15 +534,13 @@
           return { companyName, view: 'week', focusDate: formatDateInput(new Date()), filters, projects: stateProjects };
 
         } catch (error) {
-          console.log('Cargando desde almacenamiento local (Backup/Offline)');
-          try{ const raw = localStorage.getItem(STORAGE_KEY); if(raw) { const p=JSON.parse(raw); p.projects.forEach(normalizeProject); return p; } } catch {}
+          console.log('Error o sin sesión');
           return defaultState();
         }
       }
 
       async function saveState() {
         localStorage.setItem('planner_meta', JSON.stringify({ filters: state.filters, companyName: state.companyName }));
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); 
 
         try {
           if(supabaseUrl === 'TU_URL_DE_SUPABASE') return;
@@ -1108,14 +1125,46 @@
       attachGlobalEvents();
       runSelfTests();
       
-      // Arranque
-      async function initApp() {
-        els.calendar.innerHTML = '<div style="padding: 20px; color: var(--muted); text-align: center;">Conectando...</div>';
-        state = await loadState();
-        render();
-      }
+      // LÓGICA DE AUTENTICACIÓN
+      const authScreen = document.getElementById('authScreen');
+      const mainApp = document.getElementById('mainApp');
+      const emailInput = document.getElementById('emailInput');
+      const passwordInput = document.getElementById('passwordInput');
+      const authError = document.getElementById('authError');
 
-      initApp();
+      document.getElementById('loginBtn').addEventListener('click', async () => {
+        if(supabaseUrl === 'TU_URL_DE_SUPABASE') { authError.innerText = "Faltan las claves de Supabase"; return; }
+        authError.innerText = "Cargando...";
+        const { error } = await supabase.auth.signInWithPassword({ email: emailInput.value, password: passwordInput.value });
+        if(error) authError.innerText = "Error: " + error.message;
+        else authError.innerText = "";
+      });
+
+      document.getElementById('signupBtn').addEventListener('click', async () => {
+        if(supabaseUrl === 'TU_URL_DE_SUPABASE') { authError.innerText = "Faltan las claves de Supabase"; return; }
+        authError.innerText = "Registrando...";
+        const { error } = await supabase.auth.signUp({ email: emailInput.value, password: passwordInput.value });
+        if(error) authError.innerText = "Error: " + error.message;
+        else authError.innerText = "Registro exitoso. Ahora puedes entrar.";
+      });
+
+      els.logoutBtn.addEventListener('click', async () => {
+        await supabase.auth.signOut();
+      });
+
+      // ARRANQUE DE LA APP
+      supabase.auth.onAuthStateChange(async (event, session) => {
+        if (session) {
+          authScreen.style.display = 'none';
+          mainApp.style.display = 'flex';
+          state = await loadState();
+          render();
+        } else {
+          authScreen.style.display = 'flex';
+          mainApp.style.display = 'none';
+        }
+      });
+
     })();
   </script>
 </body>
